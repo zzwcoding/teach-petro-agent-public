@@ -1,0 +1,11 @@
+body { background: #f5f5f5; margin: 0; }
+.trace-dev {
+  position: fixed; left: 216px; right: 0; bottom: 0; z-index: 90;
+  background: #fffbe6; border-top: 1px solid #ffe58f;
+  padding: 6px 20px; font-size: 12px; color: #874d00;
+}
+.code-block {
+  background: #f6f8fa; border: 1px solid #e2e7ee; border-radius: 6px;
+  padding: 10px; font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+  white-space: pre-wrap; margin: 6px 0 0;
+}

@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>Petro-Agent 原型 · 设置中心 · 搜索与回答</title>
+<link rel="stylesheet" href="assets/shell.css">
+<style>.flow .step.skipped{opacity:.4;border-style:dashed}</style></head><body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>Petro-Agent</b><span>油田智能平台（原型）</span></div>
+    <nav>
+      <div class="grp">工作台</div>
+      <a class="item" href="A1-chat.html">💬 问一问</a>
+      <a class="item" href="A2-well.html">🛢 井档案</a>
+      <a class="item" href="A3-action.html">✅ 变更审批</a>
+      <div class="grp">报告库</div>
+      <a class="item" href="B1-kb.html">📄 报告库</a>
+      <a class="item sub" href="B2-chunks.html">答案出处</a>
+      <a class="item sub" href="B3-faq.html">常见问题</a>
+      <a class="item sub" href="B4-wiki.html">报告百科</a>
+      <a class="item sub" href="B5-graph.html">关系图谱</a>
+      <div class="grp">指标与术语</div>
+      <a class="item" href="C1-assets.html">📏 指标与业务术语</a>
+      <a class="item sub" href="C2-proposals.html">修改审批台</a>
+      <a class="item sub" href="C3-ci.html">发布前安检</a>
+      <div class="grp">设置中心</div>
+      <a class="item" href="D1-gateway.html">⚙️ 模型与线路</a>
+      <a class="item sub here" href="D2-retrieval.html">搜索与回答</a>
+      <a class="item sub" href="D3-security.html">安全与权限</a>
+      <a class="item sub" href="D4-system.html">系统状态</a>
+      <a class="item sub" href="D5-observe.html">运行追踪</a>
+      <a class="item sub" href="D6-pipeline.html">数据接入与加工</a>
+      <div class="grp">考核与质量</div>
+      <a class="item" href="E1-eval.html">🎯 答题考核</a>
+      <a class="item sub" href="E2-quality.html">数据质量台</a>
+      <a class="item sub" href="E3-checkup.html">知识体检</a>
+      <div class="grp">平台</div>
+      <a class="item" href="F1-expose.html">🔌 对外接口</a>
+      <a class="item" href="index.html">🗺 平台总览</a>
+    </nav>
+    <div class="foot">演示数据 · 不连真实系统<br>契约溯源见每页底部</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1>搜索与回答<span class="crumb">D 区 · 设置中心 · 阿强 · 平台找资料与给答案的规矩</span></h1>
+      <div class="spacer"></div>
+      <span class="search">🔍 搜井号 / 报告 / 指标…</span>
+      <select class="role"><option>阿强 · 平台运维</option><option>老王 · 油藏工程师</option><option>小李 · 地质/质检</option><option>主任 · 汇报人</option></select>
+      <span class="badge-demo">演示环境</span>
+    </header>
+
+    <div class="content">
+      <p class="purpose">平台怎么找资料、怎么组织答案，在这里定规矩：先查什么后查什么、每步拿几条、结果怎么排、引用长什么样、实在搜不到怎么说。</p>
+
+      <div class="tabs mb">
+        <a href="D1-gateway.html">模型与线路</a>
+        <a class="here" href="D2-retrieval.html">搜索与回答</a>
+        <a href="D3-security.html">安全与权限</a>
+        <a href="D4-system.html">系统运行</a>
+        <a href="D5-observe.html">追踪与花费</a>
+        <a href="D6-pipeline.html">数据接入加工</a>
+      </div>
+
+      <div class="row">
+        <!-- 左：顺序 / 条数 / 精排 / 引用 / 兜底 -->
+        <div class="col">
+          <div class="card">
+            <div class="hd">① 检索顺序：从准到粗，逐级升级</div>
+            <table class="t mt">
+              <thead><tr><th style="width:8%">次序</th><th>这一步查什么</th><th style="width:12%">开关</th><th>说明</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>1</td><td><b>精确点名</b>（@指标 / @井号 直接点名）</td>
+                  <td><span class="switch on" data-toggle="lw-1">开</span></td>
+                  <td>问法里带了「@产量完成率」「@N-02」这类点名，直接命中，不走后面的模糊搜索</td>
+                </tr>
+                <tr>
+                  <td>2</td><td><b>确定性查表</b>（台账完全一致才命中）</td>
+                  <td><span class="switch on" data-toggle="lw-2">开</span></td>
+                  <td>同义词、别名在账上完全对上才命中——宁可查不到，不给"差不多"的结果</td>
+                </tr>
+                <tr>
+                  <td>3</td><td><b>语义搜索＋关键词搜索，两路一起查</b></td>
+                  <td><span class="switch on" data-toggle="lw-3">开</span></td>
+                  <td>一路按意思找（换了说法也能命中），一路按字面找（专有名词一个字都不差）</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="row mt">
+              <div class="w50"><span class="switch on" data-toggle="lw-stop">命中即停：开</span> <span class="anno">上级查到就不往下查，省时省钱</span></div>
+              <div class="w50"><span class="anno">两个答案拿不准时：宁可不答、反问澄清，不瞎猜（这是固定铁律，不设开关）</span></div>
+            </div>
+            <details class="note"><summary>检索瀑布与两路合并</summary><div class="body">逐级检索、先精确后模糊（检索瀑布 S0–S8 · m21 卡 · F21）；语义搜索＝向量检索、关键词搜索＝BM25、两路合并排名＝RRF；显式锚定＝@点名命中即早停（W-F21-1/2）；混淆时拒答或澄清（W-F21-3）；命中的对象回读权威账本核验版本，不用缓存里的旧影子（W-F21-4）。</div></details>
+          </div>
+
+          <div class="card mt">
+            <div class="hd">② 每路取多少条 / 两路结果怎么合并</div>
+            <div class="row mt">
+              <div class="w25"><div class="hd">语义搜索取多少条</div><input class="input" value="20"></div>
+              <div class="w25"><div class="hd">关键词搜索取多少条</div><input class="input" value="20"></div>
+              <div class="w25"><div class="hd">两路结果怎么合并</div>
+                <select class="input">
+                  <option>两路合并排名（推荐）</option>
+                  <option>谁排前用谁（简单拼接）</option>
+                </select></div>
+              <div class="w25"><div class="hd">送精细排序的条数（前 N）</div><input class="input" value="20"></div>
+            </div>
+            <div class="mt"><button class="btn primary" onclick="fakeSave('d2-saved')">保存设置（演示）</button> <span id="d2-saved" class="anno" style="display:none">已保存（演示）——真实实现写回检索配置并热加载。</span></div>
+            <details class="note"><summary>两路合并排名＝加权 RRF</summary><div class="body">两路合并排名＝加权 RRF（词项命中与语义命中按权重合成一个名次）；只对合并池的前 N 条做精细排序，成本账才算得清（F34）。</div></details>
+          </div>
+
+          <div class="card mt">
+            <div class="hd">③ 精细排序（精排）三选一：点档位看说明与适用场景</div>
+            <div data-tabs class="tabs mt">
+              <button type="button" class="tabbtn on" data-tab="r-a">模型精排（快）</button>
+              <button type="button" class="tabbtn" data-tab="r-b">大模型逐个打分（准但贵）</button>
+              <button type="button" class="tabbtn" data-tab="r-c">复合分＋多样性（防同质）</button>
+            </div>
+            <div data-panel="r-a" class="card mt" style="background:#f6f8fa">
+              <b>怎么算：</b>用一个小而快的排序模型，把两路合并的候选一次性重新打分排队。
+              <div class="row mt"><div class="w50"><div class="hd">优点 / 代价</div>一次调用排完一批，延迟低、花费小</div><div class="w50"><div class="hd">适用场景</div>日常问答——界面响应要快，问题以「查报告找说法」为主</div></div>
+              <details class="note"><summary>bge-reranker 模型分</summary><div class="body">bge-reranker 模型分（F34 档①）。</div></details>
+            </div>
+            <div data-panel="r-b" class="card mt" style="display:none;background:#f6f8fa">
+              <b>怎么算：</b>用主力大模型对前 N 条候选<b>逐条</b>打分——打 20 条就是 20 次模型调用，一条都不能少。
+              <div class="row mt"><div class="w50"><div class="hd">优点 / 代价</div>判断最准；但每条都花一次调用，慢且贵（成本＝调用次数×N · W-F34-2）</div><div class="w50"><div class="hd">适用场景</div>重要汇报材料、口径核对——宁可慢点贵点也要准</div></div>
+              <div class="anno">打分解析失败时按原顺序放行，不炸整条链路（W-F34-2）。</div>
+              <details class="note"><summary>LLM 逐个打分</summary><div class="body">LLM 逐个打分（F34 档②）；打分不是给两路合并排名打补丁，是换更强的匹配范式。</div></details>
+            </div>
+            <div data-panel="r-c" class="card mt" style="display:none;background:#f6f8fa">
+              <b>怎么算：</b>复合分＝0.6×模型分 ＋ 0.3×检索基础分 ＋ 0.1×来源分，每条候选的得分都能拆开看；再按多样性参数（λ=0.7）挑选，避免前几名全是同一份报告的近重复段落。
+              <div class="row mt"><div class="w50"><div class="hd">优点 / 代价</div>结果覆盖面广、来源多样，得分可解释</div><div class="w50"><div class="hd">适用场景</div>「各区块产量对比」这类要覆盖面的汇总问题——防止答案全从同一篇报告抄近重复段（W-F34-3）</div></div>
+              <details class="note"><summary>复合分与 MMR 多样性</summary><div class="body">复合分 0.6/0.3/0.1 加权 ＋ MMR 多样性选择 λ=0.7（F34 档③ · W-F34-1）。</div></details>
+            </div>
+          </div>
+
+          <div class="card mt">
+            <div class="hd">④ 引用格式二选一：答案里的出处长什么样</div>
+            <div class="row mt">
+              <div class="w50">
+                <div class="card" style="background:#f6f8fa">
+                  <b>格式一：[报告名 p.页码]</b> <span class="tag blue">人读友好</span>
+                  <div class="mt">例：「渤中 28-1 油田 2019 年 6 月投产 [渤中28-1 完井报告 p.34]」</div>
+                  <div class="anno mt">谁都能看懂指向哪份报告哪一页，核查方便。</div>
+                </div>
+              </div>
+              <div class="w50">
+                <div class="card" style="background:#f6f8fa">
+                  <b>格式二：编号引用 [c3]</b> <span class="tag grey">防伪造</span>
+                  <div class="mt">例：「渤中 28-1 油田 2019 年 6 月投产 [c3]」——模型只看到编号表，答完再展开成真实出处。</div>
+                  <div class="anno mt">编号表里没有的编号（含被塞进报告里的假编号）直接删掉、绝不显示——想编引用都编不出来。</div>
+                </div>
+              </div>
+            </div>
+            <div class="row mt">
+              <div class="w50"><div class="hd">当前选择</div><label><input type="radio" name="reffe" checked> [报告名 p.页码]（人读友好）</label></div>
+              <div class="w50"><div class="hd">&nbsp;</div><label><input type="radio" name="reffe"> [c3] 编号引用（防伪造）</label></div>
+            </div>
+            <details class="note"><summary>引用防伪造闸</summary><div class="body">cN 别名、未知编号直接删（fail-closed）＝引用防伪造闸，与注入防御会师（F33 · W-F33-1/2）；两种格式平台都支持，按库选。</div></details>
+          </div>
+
+          <div class="card mt">
+            <div class="hd">⑤ 搜不到时怎么说（兜底话术）</div>
+            <div class="row mt">
+              <div class="w50"><div class="hd">策略</div>
+                <label><input type="radio" name="fbmode" checked> 说固定文案（推荐）</label><br>
+                <label><input type="radio" name="fbmode"> 允许自由回答，但必须标注「未依据报告库」</label>
+              </div>
+              <div class="col"><div class="hd">固定文案（可改）</div>
+                <textarea class="code" rows="3">报告库里没有找到能回答这个问题的内容。我不能凭空编——请换个问法，或联系资料员补充报告。</textarea>
+              </div>
+            </div>
+            <div class="anno mt">搜不到不报错、更不编造：固定文案或自由回答＋明确标注，两条路二选一（W-F33-3）。</div>
+          </div>
+        </div>
+
+        <!-- 右：演示 + 影响范围 -->
+        <div class="w33">
+          <div class="card">
+            <div class="hd">演示一次逐级检索（命中即停）</div>
+            <div class="mt"><button class="btn primary" onclick="runDemo()">演示：问「@指标 产量完成率 的口径是什么」</button></div>
+            <div class="flow mt">
+              <div class="step todo" id="rw1">第0步 · 听懂问题（谁在问/口径版本）</div><span class="arr">→</span>
+              <div class="step todo" id="rw2">第1步 · 精确点名</div><span class="arr">→</span>
+              <div class="step todo" id="rw3">第2步 · 确定性查表</div><span class="arr">→</span>
+              <div class="step todo" id="rw4">第3步 · 语义＋关键词两路</div>
+            </div>
+            <div class="card mt" id="demo-note" style="display:none;background:#f6f8fa">
+              <b>结果：</b>第 1 步「精确点名」直接命中《产量完成率》指标卡——<b>早停</b>：第 2、3 步不跑了，省时省钱；命中后回读指标账本核验版本，不是缓存旧影子。
+            </div>
+          </div>
+          <div class="card mt">
+            <div class="hd">这些规矩管谁</div>
+            <div class="mt">「问一问」的<b>问报告</b>、<b>问数据</b>两条路都按这个顺序找；引用格式同时管 <a href="B2-chunks.html">答案出处页</a> 的展示。</div>
+            <div class="anno mt">本页配置＝检索侧的"总规矩"（m21 检索协议 / m6 问答管道）；各报告库自己的开关（语义/关键词/百科/图谱四个索引开关）在 <a href="B1-kb.html">报告库</a> 按库配。</div>
+          </div>
+          <div class="card mt" style="background:#f6f8fa">
+            <div class="hd">改这里的任何规矩都不悄悄生效</div>
+            <div class="mt">改完要过 <a href="C3-ci.html">发布前安检</a>，考核成绩不降级才发布——改坏答案规矩会被第五道检查拦下。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="trace"><b>契约溯源</b><span class="sep">|</span>F21 检索瀑布 · F34 复合重排 · F33 引用编号 · m21 语义运行时卡 · m6 问答管道卡 · W-F21-1/2/3/4 · W-F33-1/2/3 · W-F34-1/2/3</div>
+    </div>
+  </div>
+</div>
+<script>
+  function fakeSave(id) { document.getElementById(id).style.display = ''; }
+  // 开关文字跟随状态（补 wire.js 只切样式的不足）
+  document.querySelectorAll('[data-toggle]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.textContent;
+      if (t.indexOf('：开') >= 0) { b.textContent = t.replace('：开', '：关'); }
+      else if (t.indexOf('：关') >= 0) { b.textContent = t.replace('：关', '：开'); }
+      else if (t === '开') { b.textContent = '关'; }
+      else if (t === '关') { b.textContent = '开'; }
+    });
+  });
+  function runDemo() {
+    var ids = ['rw1', 'rw2', 'rw3', 'rw4'];
+    ids.forEach(function (i) {
+      var e = document.getElementById(i);
+      e.classList.remove('done', 'fail', 'active', 'skipped');
+      e.classList.add('todo');
+    });
+    document.getElementById('demo-note').style.display = 'none';
+    var ms = 700;
+    function on(id) { var e = document.getElementById(id); e.classList.remove('todo'); e.classList.add('active'); }
+    function ok(id) {
+      var e = document.getElementById(id);
+      e.classList.remove('active'); e.classList.add('done');
+    }
+    on('rw1');
+    setTimeout(function () { ok('rw1'); on('rw2'); }, ms);
+    setTimeout(function () { ok('rw2'); }, 2 * ms);
+    setTimeout(function () {
+      // 早停：第 2、3 步不再跑
+      ['rw3', 'rw4'].forEach(function (i) {
+        var e = document.getElementById(i);
+        e.classList.remove('todo'); e.classList.add('skipped');
+      });
+      document.getElementById('demo-note').style.display = '';
+    }, 2 * ms + 300);
+  }
+</script>
+<script src="assets/wire.js"></script>
+</body></html>

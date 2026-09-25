@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>Petro-Agent · 变更审批台</title>
+<link rel="stylesheet" href="assets/shell.css"></head><body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>Petro-Agent</b><span>油田智能平台（原型）</span></div>
+    <nav>
+      <div class="grp">工作台</div>
+      <a class="item" href="A1-chat.html">💬 问一问</a>
+      <a class="item" href="A2-well.html">🛢 井档案</a>
+      <a class="item here" href="A3-action.html">✅ 变更审批</a>
+      <div class="grp">报告库</div>
+      <a class="item" href="B1-kb.html">📄 报告库</a>
+      <a class="item sub" href="B2-chunks.html">答案出处</a>
+      <a class="item sub" href="B3-faq.html">常见问题</a>
+      <a class="item sub" href="B4-wiki.html">报告百科</a>
+      <a class="item sub" href="B5-graph.html">关系图谱</a>
+      <div class="grp">指标与术语</div>
+      <a class="item" href="C1-assets.html">📏 指标与业务术语</a>
+      <a class="item sub" href="C2-proposals.html">修改审批台</a>
+      <a class="item sub" href="C3-ci.html">发布前安检</a>
+      <div class="grp">设置中心</div>
+      <a class="item" href="D1-gateway.html">⚙️ 模型与线路</a>
+      <a class="item sub" href="D2-retrieval.html">搜索与回答</a>
+      <a class="item sub" href="D3-security.html">安全与权限</a>
+      <a class="item sub" href="D4-system.html">系统状态</a>
+      <a class="item sub" href="D5-observe.html">运行追踪</a>
+      <a class="item sub" href="D6-pipeline.html">数据接入与加工</a>
+      <div class="grp">考核与质量</div>
+      <a class="item" href="E1-eval.html">🎯 答题考核</a>
+      <a class="item sub" href="E2-quality.html">数据质量台</a>
+      <a class="item sub" href="E3-checkup.html">知识体检</a>
+      <div class="grp">平台</div>
+      <a class="item" href="F1-expose.html">🔌 对外接口</a>
+      <a class="item" href="index.html">🗺 平台总览</a>
+    </nav>
+    <div class="foot">演示数据 · 不连真实系统<br>契约溯源见每页底部</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1>变更审批台<span class="crumb">工作台 · 当前角色：阿强（Owner 高风险终审）</span></h1>
+      <div class="spacer"></div>
+      <span class="search">🔍 搜井号 / 报告 / 指标…</span>
+      <select class="role"><option>老王 · 油藏工程师</option><option>小李 · 地质/质检</option><option>主任 · 汇报人</option><option>阿强 · 平台运维</option></select>
+      <span class="badge-demo">演示环境</span>
+    </header>
+
+    <div class="content">
+      <p class="purpose">智能助手只提建议、不动数据。每条建议像一份合同：改什么、为什么、影响多大、有什么副作用——批准才写变更记录，生产原表永远不动。</p>
+
+      <div class="tabs mb">
+        <a href="A1-chat.html">问一问</a>
+        <a href="A2-well.html">井档案（井 360°）</a>
+        <a class="here" href="A3-action.html">变更审批台</a>
+      </div>
+
+      <div class="card">
+        <span class="tag blue">建议像合同</span> <span class="tag amber">高风险必须人点 🔒</span> <span class="tag green">批准后只写变更记录，生产原表不动</span> <span class="tag grey">全程审计：谁 · 何时 · 谁提的 · 改了什么</span>
+      </div>
+
+      <!-- 低风险对照样例（自动执行，无需人点） -->
+      <div class="card mt" style="background:#f6f8fa">
+        <b>变更建议 #WB-20260922-02</b> <span class="tag grey">低风险</span> <span class="tag green">已自动执行</span>
+        <div class="mt">更新 N-02 井备注（低风险类动作：改一条备注，不碰计量数字）。</div>
+        <details class="note"><summary>风险分级与执行方式</summary><div class="body">低风险类自动执行并留审计（W-F47-2）；高风险类（调整配注 / 配产）无人工确认永不执行（W-F47-3）——按钮上有锁。</div></details>
+      </div>
+
+      <!-- 高风险建议卡：一份合同 -->
+      <div class="card mt">
+        <b>变更建议 #WB-20260923-01</b>
+        <span class="tag red">高风险</span>
+        <span class="tag grey" id="act-status">待审批</span>
+        <div class="anno mt">提出：配注优化助手（依据《注水井措施评估》剧本，设定书 §7 剧本 2）· 对象：N-06 井（渤南 / CEP-A · 注水 · 分层注水 3 层，设定书 §A.1）</div>
+        <table class="t mt">
+          <tr><th style="width:14%">改动内容</th><td>N-06 日配注上调 10%；三层配注同比例调整（分层实注/配注 达标口径见"配注合格率"，设定书 §6）。<b>只写平台变更记录区，不直接改任何生产表。</b></td></tr>
+          <tr><th>理由</th><td>维持注采平衡：注采比 β＝月注水量 ÷ 月产液量（体积折算，设定书 §3 指标 6）；区块物质平衡要求月注入量 ≈ 产出量＋存水率变动（偏差 ≤3%，设定书 §4 规则 12）。本条为演示理由，绝对数值以生产库现值为准。</td></tr>
+          <tr><th>影响测算</th><td>受效油井按劈分系数（Σ=1）分摊增油预期（递减增油口径，设定书 §3 指标 10）；见效时点以受效关系的"响应起始日"为准（设定书 §5）；注采比与累积亏空（指标 7）将同步变化，发布前联动复核。</td></tr>
+          <tr><th>副作用</th><td>① 含水上升风险（综合含水率，设定书 §3 指标 5）；② 层段实注台账"两层 / 三层口径不一"，上调后须按新配注重新核对（设定书 §A.3）；③ 不触碰财务口径（商品量结算，指标 11）——本变更与月度结算无交集。</td></tr>
+        </table>
+        <details class="note"><summary>合同四栏对照动作四要素</summary><div class="body">参数＝改动内容 / 规则＝发布前过安检 / 前置条件＝有权审批人点击（过权限闸，m8）/ 副作用＝如上（F47 · W-F47-1）。</div></details>
+
+        <div class="mt" id="act-btns">
+          <button class="btn primary locked" onclick="doApprove()">批准（高风险，必须人点）</button>
+          <details class="mock-modal pop" style="display:inline-block">
+            <summary class="btn">驳回（须写理由）</summary>
+            <div class="panel">
+              <textarea id="reject-reason" class="input" rows="3" placeholder="例如：影响测算没覆盖含水上升风险，补测算后再议"></textarea>
+              <div class="mt"><button class="btn" onclick="doReject()">提交驳回</button></div>
+              <div class="anno mt">驳回理由随建议退回提出方（演示）。</div>
+            </div>
+          </details>
+        </div>
+
+        <div id="done-note" class="card mt" style="display:none;background:#f6f8fa">
+          <span class="tag green">已执行</span> 已写入变更记录区 #WB-20260923-01；<b>批准后只写变更记录，生产原表（注水台账）不动</b>——as-is 入库原则的对偶（F47）。
+          <details class="note"><summary>生产原表与受控写入</summary><div class="body">生产原表＝注水台账 water_injection_daily（受控写入：只落平台侧变更记录，不接真业务系统回写）。</div></details>
+        </div>
+        <div id="reject-note" class="card mt" style="display:none;border-color:#e3b6b0;background:#fdecea;color:#c0392b"></div>
+      </div>
+
+      <!-- 变更记录区 -->
+      <div class="card mt">
+        <div class="hd">变更记录区（只追加，永不改生产原表）</div>
+        <div id="wb-list" class="mt">
+          <div class="card" style="background:#f6f8fa">#WB-20260922-02 · 2026-09-22 · 更新 N-02 井备注（低风险自动类，详见审计行）</div>
+        </div>
+        <details class="note"><summary>变更记录区与生产库的关系</summary><div class="body">Writeback 的人话＝变更记录区：建议执行后写在这里，生产库零改动、可回滚可对账（m3 持久化 · W-F47-4）。</div></details>
+      </div>
+
+      <!-- 审计表 -->
+      <div class="card mt">
+        <div class="hd">审计（谁 · 何时 · 哪个助手提的 · 改了什么）</div>
+        <table class="t mt">
+          <thead><tr><th>何时</th><th>谁批的</th><th>哪个助手提的</th><th>改了什么</th></tr></thead>
+          <tbody id="audit-body">
+            <tr><td>2026-09-22 15:40（演示时刻）</td><td>老王</td><td>档案助手</td><td>更新 N-02 井备注（低风险自动类）</td></tr>
+          </tbody>
+        </table>
+        <details class="note"><summary>审计四要素</summary><div class="body">谁 / 何时 / 哪个 Agent 提的 / 改了什么（"Agent"即"智能助手"，界面用人话）；全程留痕经可观测与落库双份（m8 / m12 / m3）。</div></details>
+      </div>
+
+      <div class="trace"><b>契约溯源</b><span class="sep">|</span>F47 受控写入与写回 · m17 执行前校验链卡 · m8 工具体系（权限闸）卡 · m3 持久化卡 · W-F47-1/2/3/4</div>
+    </div>
+  </div>
+</div>
+<script>
+  function doApprove() {
+    var st = document.getElementById('act-status');
+    st.textContent = '已执行';
+    st.className = 'tag green';
+    document.getElementById('act-btns').style.display = 'none';
+    document.getElementById('done-note').style.display = '';
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>2026-09-23 10:36（演示时刻）</td><td>阿强（当前角色 · 高风险终审）</td><td>配注优化助手</td>' +
+      '<td>N-06 日配注上调 10% —— 写入变更记录区 #WB-20260923-01；生产原表（注水台账）未动</td>';
+    document.getElementById('audit-body').appendChild(tr);
+    var div = document.createElement('div');
+    div.className = 'card';
+    div.style.background = '#f6f8fa';
+    div.style.marginTop = '8px';
+    div.textContent = '#WB-20260923-01 · 2026-09-23 · N-06 日配注上调 10%（仅写变更记录区，生产原表不动）';
+    document.getElementById('wb-list').appendChild(div);
+  }
+  function doReject() {
+    var r = document.getElementById('reject-reason').value || '（未填写理由——演示默认：影响测算不足）';
+    var st = document.getElementById('act-status');
+    st.textContent = '已驳回';
+    st.className = 'tag red';
+    document.getElementById('act-btns').style.display = 'none';
+    var n = document.getElementById('reject-note');
+    n.style.display = '';
+    n.textContent = '已驳回 · 理由：' + r + '（建议退回配注优化助手，生产侧无任何改动）';
+    var box = document.getElementById('reject-reason').closest('details');
+    if (box) box.open = false;
+  }
+</script>
+<script src="assets/wire.js"></script>
+</body></html>

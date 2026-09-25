@@ -1,0 +1,238 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title> Petro-Agent 原型 · 报告库 · 报告库</title>
+<link rel="stylesheet" href="assets/shell.css">
+<style>
+  .switch { position:relative; }
+  button.switch { border:none; background:none; padding:0; font-family:inherit; color:inherit; }
+</style></head><body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>Petro-Agent</b><span>油田智能平台（原型）</span></div>
+    <nav>
+      <div class="grp">工作台</div>
+      <a class="item" href="A1-chat.html">💬 问一问</a>
+      <a class="item" href="A2-well.html">🛢 井档案</a>
+      <a class="item" href="A3-action.html">✅ 变更审批</a>
+      <div class="grp">报告库</div>
+      <a class="item here" href="B1-kb.html">📄 报告库</a>
+      <a class="item sub" href="B2-chunks.html">答案出处</a>
+      <a class="item sub" href="B3-faq.html">常见问题</a>
+      <a class="item sub" href="B4-wiki.html">报告百科</a>
+      <a class="item sub" href="B5-graph.html">关系图谱</a>
+      <div class="grp">指标与术语</div>
+      <a class="item" href="C1-assets.html">📏 指标与业务术语</a>
+      <a class="item sub" href="C2-proposals.html">修改审批台</a>
+      <a class="item sub" href="C3-ci.html">发布前安检</a>
+      <div class="grp">设置中心</div>
+      <a class="item" href="D1-gateway.html">⚙️ 模型与线路</a>
+      <a class="item sub" href="D2-retrieval.html">搜索与回答</a>
+      <a class="item sub" href="D3-security.html">安全与权限</a>
+      <a class="item sub" href="D4-system.html">系统状态</a>
+      <a class="item sub" href="D5-observe.html">运行追踪</a>
+      <a class="item sub" href="D6-pipeline.html">数据接入与加工</a>
+      <div class="grp">考核与质量</div>
+      <a class="item" href="E1-eval.html">🎯 答题考核</a>
+      <a class="item sub" href="E2-quality.html">数据质量台</a>
+      <a class="item sub" href="E3-checkup.html">知识体检</a>
+      <div class="grp">平台</div>
+      <a class="item" href="F1-expose.html">🔌 对外接口</a>
+      <a class="item" href="index.html">🗺 平台总览</a>
+    </nav>
+    <div class="foot">演示数据 · 不连真实系统<br>契约溯源见每页底部</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1>报告库<span class="crumb">B 区 · 报告库 · 为小李设计</span></h1>
+      <div class="spacer"></div>
+      <span class="search">🔍 搜井号 / 报告 / 指标…</span>
+      <select class="role"><option>老王 · 油藏工程师</option><option>小李 · 地质/质检</option><option>主任 · 汇报人</option><option>阿强 · 平台运维</option></select>
+      <span class="badge-demo">演示环境</span>
+    </header>
+
+    <div class="content">
+      <p class="purpose">报告传进来，平台替你读一遍：切成片段、建好索引，处理到哪一步亮哪一步；处理完还自动写好全文档摘要和"这份报告可能被问的 10 个问题"。</p>
+
+      <div class="tabs mb">
+        <a class="here" href="B1-kb.html">报告库</a>
+        <a href="B2-chunks.html">答案出处</a>
+        <a href="B3-faq.html">常见问答库</a>
+        <a href="B4-wiki.html">报告百科</a>
+        <a href="B5-graph.html">关系图谱</a>
+      </div>
+
+      <div class="row">
+        <!-- 左：库列表 + 上传 -->
+        <div class="w25">
+          <div class="card" style="height:100%">
+            <div class="hd">库与报告</div>
+            <div class="mt">
+              <b>完井报告库</b>
+              <div>《N-02 井完井报告（英文 · 200 页）》</div>
+              <div class="anno">开关：语义 ✓ 关键词 ✓ 百科 ✓ 图谱 ✓</div>
+            </div>
+            <div class="mt">
+              <b>生产月报库</b>
+              <div>《渤中28-1 区块月度生产月报（2026-08）》</div>
+              <div class="anno">开关：语义 ✓ 关键词 ✓ 百科 ✓ 图谱 ✗</div>
+            </div>
+            <div class="mt">
+              <b>制度文件库</b>
+              <div>《平台管理制度文件（示例）》</div>
+              <div class="anno">开关：语义 ✓ 关键词 ✓ 百科 ✓ <span class="off">图谱 ✗（省抽取费）</span></div>
+            </div>
+            <details class="note"><summary>每个库的开关可以不一样</summary><div class="body">制度文件库没有井井关系，关掉图谱开关，省下一笔抽取费用（F32）。</div></details>
+            <div class="mt">
+              <button class="btn primary" onclick="startUpload()">上传报告（直传）</button>
+              <div id="up-q" class="card mt" style="display:none;background:#f6f8fa">已选择：《N-02 井完井报告（英文 · 200 页）》→ 完井报告库</div>
+              <details class="note"><summary>直传是什么</summary><div class="body">直传＝文件从浏览器直接进文件库，不绕平台服务器中转（技术名：预签名直传 · W-F5-1）。</div></details>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：处理管线 -->
+        <div class="col">
+          <div class="card">
+            <div class="hd">处理进度（走到哪步亮哪步）</div>
+            <div class="anno">点"上传报告"开跑；点管线任意处可重跑。关掉的索引支路直接跳过、不跑不花钱。</div>
+            <div id="b1flow" data-runflow data-step-ms="650" class="mt">
+              <div class="flow">
+                <div class="step" data-step="s1" data-reveal="p1">解析（读出文字和图）</div><span class="arr">→</span>
+                <div class="step" data-step="s2" data-reveal="p2">切段</div><span class="arr">→</span>
+                <div class="step" data-step="s3" data-reveal="p3">向量化</div><span class="arr">→</span>
+                <div class="step" data-step="s4" data-reveal="p4">建索引</div><span class="arr">→</span>
+                <div class="step" data-step="s5" data-reveal="p5">索引期加法（摘要＋问题）</div>
+              </div>
+              <div class="card mt" id="p1" style="display:none;background:#f6f8fa">读出正文和插图；报告原文原样存进文件库（桶：报告原文），一个字不动——以后任何引用都能翻回原文（F5）。</div>
+              <div class="card mt" id="p2" style="display:none;background:#f6f8fa"><span id="p2-mode">切段方式：智能切段——按章节和语义边界切，一段 256–1024 字，相邻段重叠 10–20%（F6）。</span>想看三种切法的对照，用下面"切段方式"现场切换。</div>
+              <div class="card mt" id="p3" style="display:none;background:#f6f8fa">把每段换成一串"语义坐标"：意思相近的段坐标就相近——问句换个说法也能搜到，靠的就是它。<span class="anno">技术名：嵌入向量。</span></div>
+              <div class="card mt" id="p4" style="display:none;background:#f6f8fa"><span id="p4-sw">按四开关写入索引：语义 ✓ · 关键词 ✓ · 百科页 ✓ · 关系图谱 ✗。关掉的支路不跑、不产生抽取费用（W-F32-2）。</span></div>
+              <div id="p5" style="display:none;margin-top:6px">
+                <details class="note"><summary>给索引做加法</summary><div class="body">全文摘要 1 篇＋每 20 段生成一批"可能被问的问题"（F37）。下面两件产物已自动就位：</div></details>
+
+                <!-- 处理完自动产出：摘要 + 10 问 -->
+                <div id="b1-post">
+                <div class="card mt">
+                  <span class="tag blue">摘要块</span> <b>全文档摘要（自动生成 · 演示）</b>
+                  <div class="mt">本报告为 N-02 井（渤中28-1-N2）完井报告：井位于渤南区块 CEP-A 平台，井别采油，2019-06-15 投产，状态生产中；正文含完井段与投产信息，插图含岩性柱状图等。（事实取设定书 §A.1）</div>
+                  <details class="note"><summary>摘要与原文片段同入索引、带"摘要块"类型标</summary><div class="body">检索结果能区分原文块 / 摘要块 / 问题块（F37 · W-F37-1）。</div></details>
+                </div>
+                <div class="card mt">
+                  <span class="tag blue">问题块</span> <b>这份报告可能被问的 10 个问题（自动生成）</b>
+                  <ol class="mt">
+                    <li>N-02 井是什么时候投产的？（设定书 §A.1）</li>
+                    <li>N-02 井在哪个平台、哪个区块？（设定书 §A.1）</li>
+                    <li>N-02 井的完井方式是什么？（报告正文 · PRD F30 例问）</li>
+                    <li>N-02 是采油井还是注水井？（设定书 §A.1）</li>
+                    <li>N-02 井的日产油、含水率是多少？（设定书 §A.2 样本行）</li>
+                    <li>报告里的岩性柱状图说了什么？（图片说明块命中 · PRD F36）</li>
+                    <li>报告提到哪几类措施？（压裂 / 酸化 / 补孔 / 调剖 · 设定书 §A.5）</li>
+                    <li>N-06 注水影响哪些井？（受效关系 · 设定书 §5 / PRD F40）</li>
+                    <li>这份报告的中文百科页长什么样？（PRD F50）</li>
+                    <li>这份报告适合回答哪类问题？（全文档摘要块 · PRD F37）</li>
+                  </ol>
+                  <details class="note"><summary>问句撞问句，比问句撞正文好命中</summary><div class="body">（W-F37-2）。想看这些片段长什么样 → <a href="B2-chunks.html">答案出处</a>。</div></details>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt">
+        <!-- 四开关 + 索引期加法 -->
+        <div class="w40">
+          <div class="card" style="height:100%">
+            <div class="hd">本库索引开关（按库配置）</div>
+            <div class="mt">
+              <button class="switch on" id="sw-vec" onclick="flip('sw-vec')">语义索引</button> <span id="st-vec">开</span>
+              <div class="anno">换种说法也能搜到（语义搜索的底子）。</div>
+              <div class="card mt" id="nt-vec" style="display:none;background:#fdf3e3;border-color:#f0d9b5">关掉后：只剩关键词精确命中，问法一换就可能搜不到。</div>
+            </div>
+            <div class="mt">
+              <button class="switch on" id="sw-bm25" onclick="flip('sw-bm25')">关键词索引</button> <span id="st-bm25">开</span>
+              <div class="anno">按字面精确搜：井号、编号一搜一个准。</div>
+              <div class="card mt" id="nt-bm25" style="display:none;background:#fdf3e3;border-color:#f0d9b5">关掉后：同义词问法仍能靠语义命中，但精确编号（如 N-02）搜不到——对照实验可复述（W-F32-3）。</div>
+            </div>
+            <div class="mt">
+              <button class="switch on" id="sw-wiki" onclick="flip('sw-wiki')">百科页</button> <span id="st-wiki">开</span>
+              <div class="anno">入库后顺手生成中文百科页（如 200 页英文完井报告 → 一页中文）。</div>
+              <div class="card mt" id="nt-wiki" style="display:none;background:#fdf3e3;border-color:#f0d9b5">关掉后：不生成百科页，英文原版就只能整本翻 → <a href="B4-wiki.html">报告百科</a>。</div>
+            </div>
+            <div class="mt">
+              <button class="switch" id="sw-graph" onclick="flip('sw-graph')">关系图谱</button> <span id="st-graph">关</span>
+              <div class="anno">逐段抽"谁—什么关系→谁"，费用较高；没有关系的库（如制度文件）建议关。</div>
+              <div class="card mt" id="nt-graph" style="background:#fdf3e3;border-color:#f0d9b5">（图谱已关）本次入库不做关系抽取，省下费用；"哪些井受过 N-06 注水影响"这类问题将答不了。想开 → 点上面开关。</div>
+            </div>
+            <div class="card mt" style="background:#f6f8fa">
+              <div class="hd">索引期加法（处理完自动多做两件事）</div>
+              <div class="mt"><input type="checkbox" checked> 自动生成全文档摘要 ×1</div>
+              <div><input type="checkbox" checked> 每 20 段自动生成"可能被问的问题"一批</div>
+            </div>
+            <div class="mt"><button class="btn" onclick="fakeSave('b1-saved')">保存本库配置</button> <span id="b1-saved" class="anno" style="display:none">已保存（演示）——开关在下次入库时定型，不做运行时热切换（F32）。</span></div>
+          </div>
+        </div>
+
+        <!-- 切段方式对照 -->
+        <div class="col">
+          <div class="card" style="height:100%">
+            <div class="hd">切段方式（三选一，现场看对照）</div>
+            <div class="anno">同一段报告原文（演示，事实＝设定书 §A.1），三种切法切出来不一样。</div>
+            <div class="card mt" style="background:#f6f8fa"><code>3. N-02 井完井情况。3.1 基本数据：N-02 井（渤中28-1-N2）位于渤南区块 CEP-A 平台，井别采油（EW），2019-06-15 投产。3.2 完井段：详见射孔与防砂参数表。</code></div>
+            <div data-tabs class="tabs mt">
+              <button class="tabbtn on" data-tab="smart" onclick="setMode('智能切段——按章节和语义边界切，一段 256–1024 字，相邻段重叠 10–20%（F6）。')">智能切段（256–1024 字）</button>
+              <button class="tabbtn" data-tab="fixed" onclick="setMode('固定大小——每段等长，句子可能被拦腰斩断（PRD F6 选项对照）。')">固定大小</button>
+              <button class="tabbtn" data-tab="parent" onclick="setMode('大小段配合——小段进索引负责被找到，大段入库负责被读懂（F30）。')">大小段配合</button>
+            </div>
+            <div data-panel="smart">
+              <div class="card" style="background:#f6f8fa">小段 1：3. N-02 井完井情况。3.1 基本数据：N-02 井（渤中28-1-N2）位于渤南区块 CEP-A 平台，井别采油（EW）。</div>
+              <div class="card mt" style="background:#f6f8fa">小段 2：……井别采油（EW），2019-06-15 投产。3.2 完井段：详见射孔与防砂参数表。</div>
+              <details class="note mt"><summary>按章节和语义边界切</summary><div class="body">一段 256–1024 字、相邻段重叠 10–20%——句子不被拦腰斩断（F6）。</div></details>
+            </div>
+            <div data-panel="fixed" style="display:none">
+              <div class="card" style="background:#f6f8fa">小段 1：3. N-02 井完井情况。3.1 基本数据：N-02 井（渤中28-1-N2）位于渤</div>
+              <div class="card mt" style="background:#f6f8fa">小段 2：南区块 CEP-A 平台，井别采油（EW），2019-06-15 投产。3.2 完井段：详见……</div>
+              <details class="note mt"><summary>每段字数一样，"渤南"被切到两段</summary><div class="body">搜"渤南"两段都算命中，读哪段都残缺——好处只剩"切法可复现"（选项对照 · PRD F6）。</div></details>
+            </div>
+            <div data-panel="parent" style="display:none">
+              <div class="card" style="background:#f6f8fa">小段（进索引，负责被找到）：① N-02 井（渤中28-1-N2）2019-06-15 投产。② 井别采油（EW），位于 CEP-A 平台。</div>
+              <div class="card mt" style="background:#f6f8fa">大段（只入库、不进索引，负责被读懂）：3. N-02 井完井情况。3.1 基本数据：……（整段全文）。</div>
+              <details class="note mt"><summary>小段负责被找到，大段负责被读懂</summary><div class="body">命中后把大段整段带出来——铁律：大段永不出现在搜索结果里（F30 · W-F30-1/2）。现场演示 → <a href="B2-chunks.html">答案出处</a>。</div></details>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="trace"><b>契约溯源</b><span class="sep">|</span>F5 对象存储 · F6 RAG 管道 · F30 大小段配合 · F32 知识管线四开关 · F37 索引期加法 · m5 对象存储卡 / m6 问答管道卡 / m14 索引存储卡 · W-F5-1 · W-F6-1 · W-F30-1/2 · W-F32-1/2/3 · W-F37-1/2</div>
+    </div>
+  </div>
+</div>
+<script>
+  function startUpload() {
+    document.getElementById('up-q').style.display = '';
+    document.getElementById('b1flow').click();
+  }
+  // 四开关：按钮变状态 + 文案开/关 + 关掉后果提示
+  function flip(id) {
+    var on = document.getElementById(id).classList.toggle('on');
+    var short = id.slice(3);
+    document.getElementById('st-' + short).textContent = on ? '开' : '关';
+    document.getElementById('nt-' + short).style.display = on ? 'none' : '';
+    updateFlowText();
+  }
+  function swOn(id) { return document.getElementById(id).classList.contains('on'); }
+  function updateFlowText() {
+    var s = [];
+    s.push('语义 ' + (swOn('sw-vec') ? '✓' : '✗'));
+    s.push('关键词 ' + (swOn('sw-bm25') ? '✓' : '✗'));
+    s.push('百科页 ' + (swOn('sw-wiki') ? '✓' : '✗'));
+    s.push('关系图谱 ' + (swOn('sw-graph') ? '✓' : '✗'));
+    document.getElementById('p4-sw').textContent = '按四开关写入索引：' + s.join(' · ') + '。关掉的支路不跑、不产生抽取费用（W-F32-2）。';
+  }
+  function fakeSave(id) { document.getElementById(id).style.display = ''; }
+  function setMode(t) { document.getElementById('p2-mode').textContent = '切段方式：' + t; }
+  updateFlowText();
+</script>
+<script src="assets/wire.js"></script>
+</body></html>

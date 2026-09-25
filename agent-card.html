@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Petro-Agent · A2A AgentCard</title>
+<style>
+  :root { --bg:#0f1620; --card:#17222f; --line:#263444; --ink:#dbe6f0; --dim:#8fa3b8; --acc:#4fb3a9; --warn:#e0a458; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--ink); font:15px/1.7 "PingFang SC","Microsoft YaHei",sans-serif; padding:40px 16px; }
+  .wrap { max-width:880px; margin:0 auto; }
+  h1 { font-size:24px; letter-spacing:1px; }
+  h1 small { color:var(--acc); font-size:14px; margin-left:10px; }
+  .sub { color:var(--dim); margin:6px 0 24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px 22px; margin-bottom:18px; }
+  .card h2 { font-size:16px; color:var(--acc); margin-bottom:10px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  td { padding:7px 10px; border-top:1px solid var(--line); vertical-align:top; }
+  td:first-child { color:var(--dim); white-space:nowrap; width:150px; }
+  code { background:#0b121a; border:1px solid var(--line); border-radius:4px; padding:1px 6px; font-size:13px; color:#a8d0cb; }
+  .tag { display:inline-block; border:1px solid var(--acc); color:var(--acc); border-radius:12px; padding:0 10px; font-size:12px; margin:2px 4px 2px 0; }
+  .tag.warn { border-color:var(--warn); color:var(--warn); }
+  .note { color:var(--dim); font-size:13px; margin-top:10px; }
+  a { color:var(--acc); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Petro-Agent 油田智能平台 <small>A2A AgentCard（设计稿）</small></h1>
+  <p class="sub">本页是平台对外暴露的 Agent 名片——外部 Agent 通过它发现平台技能；静态页即 AgentCard 样例的渲染形态。</p>
+
+  <div class="card">
+    <h2>身份</h2>
+    <table>
+      <tr><td>name</td><td><code>petro-agent</code></td></tr>
+      <tr><td>description</td><td>渤海油田数据智能平台：报告问答（RAG）/ 生产数据问数（Text2SQL + 语义层）/ 多模态成品生成（问智）/ 语义资产治理（4+1 能力域 + 五级 CI）。</td></tr>
+      <tr><td>provider</td><td>虚构设定项目（组织与人名均为虚构设定）——非真实部署服务</td></tr>
+      <tr><td>protocolVersion</td><td>A2A 形状设计演绎；传输与端点未实装</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>skills（技能声明）</h2>
+    <table>
+      <tr><td>qa · 报告问答</td><td>带页码引用的流式回答；无据拒答双闸。</td></tr>
+      <tr><td>text2sql · 生产问数</td><td>自然语言→确定性 SQL；语义层直绑 verified metric；执行前五道关；检索瀑布 @锚定直达。</td></tr>
+      <tr><td>wenzhi · 问智生成</td><td>PPT/图/语音成品；受理即回 + 任务句柄（Tasks 映射同构）。</td></tr>
+      <tr><td>semantic-governance · 口径治理</td><td>口径变更过五级 CI + Owner 审批；只提 MR 四红线；Ossie 格式导出。</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>endpoints &amp; authentication（设计演绎）</h2>
+    <table>
+      <tr><td>endpoint</td><td><code>mcp://petro-agent（形态示意——不搭真实例）</code></td></tr>
+      <tr><td>authentication</td><td>服务账号 + 角色档（外部 Agent 默认<b>只读档</b>）；行权限随档注入</td></tr>
+      <tr><td>capabilities</td><td><span class="tag">tools: 只读查库/导航</span><span class="tag">elicitation: 缺参主动问</span><span class="tag">tasks: 异步成品</span><span class="tag warn">外发通道: 无</span></td></tr>
+    </table>
+    <p class="note">同权同闸：外部 Agent 的工具清单 = 注册表可见性过滤结果；越权拒绝与内部幻觉调用同一形状。大结果一律回 artifact 句柄 + 5 行预览。</p>
+  </div>
+
+  <div class="card">
+    <h2>相关文档</h2>
+    <table>
+      <tr><td>架构大图</td><td><a href="diagrams/petro-agent.html">diagrams/petro-agent.html</a></td></tr>
+    </table>
+  </div>
+
+  <p class="note">诚实声明：本名片与端点均为设计演绎（PRD F28"不做什么"），平台无可运行实例；所有"我们的办法"指设计并走查过。</p>
+</div>
+</body>
+</html>

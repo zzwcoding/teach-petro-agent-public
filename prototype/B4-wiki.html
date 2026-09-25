@@ -1,0 +1,191 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title> Petro-Agent 原型 · 报告库 · 报告百科</title>
+<link rel="stylesheet" href="assets/shell.css"></head><body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>Petro-Agent</b><span>油田智能平台（原型）</span></div>
+    <nav>
+      <div class="grp">工作台</div>
+      <a class="item" href="A1-chat.html">💬 问一问</a>
+      <a class="item" href="A2-well.html">🛢 井档案</a>
+      <a class="item" href="A3-action.html">✅ 变更审批</a>
+      <div class="grp">报告库</div>
+      <a class="item" href="B1-kb.html">📄 报告库</a>
+      <a class="item sub" href="B2-chunks.html">答案出处</a>
+      <a class="item sub" href="B3-faq.html">常见问题</a>
+      <a class="item sub here" href="B4-wiki.html">报告百科</a>
+      <a class="item sub" href="B5-graph.html">关系图谱</a>
+      <div class="grp">指标与术语</div>
+      <a class="item" href="C1-assets.html">📏 指标与业务术语</a>
+      <a class="item sub" href="C2-proposals.html">修改审批台</a>
+      <a class="item sub" href="C3-ci.html">发布前安检</a>
+      <div class="grp">设置中心</div>
+      <a class="item" href="D1-gateway.html">⚙️ 模型与线路</a>
+      <a class="item sub" href="D2-retrieval.html">搜索与回答</a>
+      <a class="item sub" href="D3-security.html">安全与权限</a>
+      <a class="item sub" href="D4-system.html">系统状态</a>
+      <a class="item sub" href="D5-observe.html">运行追踪</a>
+      <a class="item sub" href="D6-pipeline.html">数据接入与加工</a>
+      <div class="grp">考核与质量</div>
+      <a class="item" href="E1-eval.html">🎯 答题考核</a>
+      <a class="item sub" href="E2-quality.html">数据质量台</a>
+      <a class="item sub" href="E3-checkup.html">知识体检</a>
+      <div class="grp">平台</div>
+      <a class="item" href="F1-expose.html">🔌 对外接口</a>
+      <a class="item" href="index.html">🗺 平台总览</a>
+    </nav>
+    <div class="foot">演示数据 · 不连真实系统<br>契约溯源见每页底部</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1>报告百科<span class="crumb">B 区 · 报告库 · 为小李设计</span></h1>
+      <div class="spacer"></div>
+      <span class="search">🔍 搜井号 / 报告 / 指标…</span>
+      <select class="role"><option>老王 · 油藏工程师</option><option>小李 · 地质/质检</option><option>主任 · 汇报人</option><option>阿强 · 平台运维</option></select>
+      <span class="badge-demo">演示环境</span>
+    </header>
+
+    <div class="content">
+      <p class="purpose">200 页英文完井报告，重写成 一页中文结构化百科页：井号、区块名自动变成链接，改错了一键滚回，每版改了什么都能对出来。</p>
+
+      <div class="tabs mb">
+        <a href="B1-kb.html">报告库</a>
+        <a href="B2-chunks.html">答案出处</a>
+        <a href="B3-faq.html">常见问答库</a>
+        <a class="here" href="B4-wiki.html">报告百科</a>
+        <a href="B5-graph.html">关系图谱</a>
+      </div>
+
+      <div class="row">
+        <!-- 左：库首页目录 -->
+        <div class="w25">
+          <div class="card" style="height:100%">
+            <div class="hd">百科首页目录（完井报告库）</div>
+            <div class="mt">
+              <div><b>《N-02 井完井报告》百科页（本页）</b></div>
+              <div class="mt"><span class="tag grey">《渤中28-1 区块月度生产月报》百科页（演示占位）</span></div>
+            </div>
+            <div class="mt">
+              <div class="anno">最近更新</div>
+              <div class="anno">09-20 · 完井报告百科 v3</div>
+              <div class="anno">09-18 · 完井报告百科 v2</div>
+              <div class="anno">09-15 · 完井报告百科 v1</div>
+            </div>
+            <details class="note"><summary>每个库一个首页目录</summary><div class="body">词条目录＋最近更新，入库后自动生成（F51 · W-F51-2）。百科开关在<a href="B1-kb.html">报告库</a>按库配置。</div></details>
+          </div>
+        </div>
+
+        <!-- 中：百科页 -->
+        <div class="col">
+          <div class="card">
+            <div class="hd">中文百科页（由 200 页英文原版重写生成）</div>
+            <h3 style="font-size:15px">《N-02 井完井报告》· 百科页 <span class="anno" id="wiki-cur">当前版：v3</span></h3>
+            <div class="mt">
+              <b>摘要</b>
+              <div class="mt">本报告为 <a href="#wellcard">N-02</a> 井（<a href="#wellcard">渤中28-1</a>-N2）完井报告：井位于渤南区块 CEP-A 平台，井别采油，2019-06-15 投产，状态生产中；正文含完井段与投产信息，插图含岩性柱状图等。</div>
+              <details class="note"><summary>"重写≠检索"</summary><div class="body">整页由报告内容重新写成，不是拼贴原文片段（F50）。图内没字的图，回读图片说明与图片文字后再写，不出空页（W-F50-2）。</div></details>
+            </div>
+            <div class="mt">
+              <b>关键参数</b>
+              <table class="t mt">
+                <tr><th style="width:30%">井号</th><td>N-02</td></tr>
+                <tr><th>井名</th><td>渤中28-1-N2</td></tr>
+                <tr><th>井别</th><td>采油（EW）</td></tr>
+                <tr><th>投产日期</th><td>2019-06-15</td></tr>
+                <tr><th>平台</th><td id="wp-cell">CEP-B <span class="tag red" id="wp-warn">与井档案对不上（设定书 §A.1：CEP-A）——v3 自动重建时把井链错了</span></td></tr>
+                <tr><th>区块</th><td>渤南</td></tr>
+                <tr><th>状态</th><td>生产中</td></tr>
+              </table>
+              <div class="anno">参数值取自报告与井档案（设定书 §A.1）。（事实源：设定书 §A.1）</div>
+            </div>
+            <div class="mt">
+              <b>表格摘录（报告附表 · 中文化示例）</b>
+              <table class="t mt">
+                <tr><th>井号</th><th>日期</th><th>日产油（吨）</th><th>日产液（方）</th><th>备注</th></tr>
+                <tr><td>N-02</td><td>2026-09-14</td><td>48.60</td><td>165.30</td><td>样本日（设定书 §A.2）</td></tr>
+                <tr><td>N-11</td><td>2026-09-14</td><td>12.40（误录"方"，折算约 11.04 吨）</td><td>96.00</td><td>油量单位误录，按渤中密度 0.89 折算（设定书 §2.2）</td></tr>
+              </table>
+            </div>
+            <details class="note"><summary>页上论断可回链证据片段</summary><div class="body">如"2019-06-15 投产"回链原文——知识层/证据层分离，审计可查（W-F52-3）→ <a href="B2-chunks.html">答案出处</a>。</div></details>
+          </div>
+
+          <!-- 对象卡（词条链接落点） -->
+          <div class="card mt" id="wellcard">
+            <div class="hd">对象卡：井 N-02（词条链接落点 · 演示为页内卡）</div>
+            <table class="t mt">
+              <tr><th>井号</th><td>N-02</td><th>井名</th><td>渤中28-1-N2</td></tr>
+              <tr><th>井别</th><td>采油（EW）</td><th>投产</th><td>2019-06-15</td></tr>
+              <tr><th>平台</th><td>CEP-A</td><th>区块</th><td>渤南</td></tr>
+              <tr><th>状态</th><td>生产中</td><th>关联注水井</th><td>N-06（受效关系见<a href="B5-graph.html">关系图谱</a>）</td></tr>
+            </table>
+            <details class="note"><summary>词条自动变链接</summary><div class="body">井号、区块名等实体词在百科页里自动带链接，点"渤中28-1"就跳到对应卡（F51 · W-F51-1）。真实平台跳「井档案（井 360°）」页 → <a href="A2-well.html">去 A2 看井 360°</a>。</div></details>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt">
+        <!-- 版本列表 -->
+        <div class="w40">
+          <div class="card" style="height:100%">
+            <div class="hd">版本历史（点某版看它改了什么）</div>
+            <div class="mt" id="ver-list">
+              <div class="card" style="margin:4px 0;background:#f6f8fa"><button class="btn" id="vb-v1" onclick="setVer('v1')">v1</button> 2026-09-15 · 首次生成（报告入库自动建页）<span id="vm-v1"></span></div>
+              <div class="card" style="margin:4px 0;background:#f6f8fa"><button class="btn" id="vb-v2" onclick="setVer('v2')">v2</button> 2026-09-18 · 报告重新解析后自动重建（新增"表格摘录"）<span id="vm-v2"></span></div>
+              <div class="card" style="margin:4px 0;background:#f6f8fa"><button class="btn" id="vb-v3" onclick="setVer('v3')">v3</button> 2026-09-20 · 自动重建（链错了井）<span id="vm-v3"> <span class="tag blue">当前版</span></span></div>
+            </div>
+            <div class="mt"><button class="btn primary" onclick="rollback()">回滚（恢复到上一版 v2）</button></div>
+            <div id="rb-banner" class="card mt" style="display:none;background:#f6f8fa"></div>
+            <details class="note"><summary>历史只追加、不可篡改</summary><div class="body">回滚本身也记成一次新提交，随时可再滚回（W-F52-1/2）。百科页改错的成本＝一键回滚，不用等下次重建。</div></details>
+          </div>
+        </div>
+
+        <!-- 差异对比 -->
+        <div class="col">
+          <div class="card" style="height:100%">
+            <div class="hd">差异对比（<span id="diff-title">选一个版本</span>）</div>
+            <div id="diff-body" class="mt"><div class="anno">点左边版本列表任意一版，这里展开它与上一版的逐字差异。</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="trace"><b>契约溯源</b><span class="sep">|</span>F50 百科页 · F51 自动链接 · F52 版本回滚 · m6 问答管道卡 · W-F50-1/2 · W-F51-1/2 · W-F52-1/2/3</div>
+    </div>
+  </div>
+</div>
+<script>
+  var CUR = 'v3';
+  var DIFF = {
+    v1: { t: 'v0 → v1（首次生成）', body: '<div class="anno">首次生成，无上一版可比。重建只取文字块拼回，重叠部分去重后全文通顺（W-F50-1）。</div>' },
+    v2: { t: 'v1 → v2', body: '<table class="t"><tr><th>位置</th><th>v1</th><th>v2</th></tr><tr><td>章节「表格摘录」</td><td>（无）</td><td>新增：报告附表中文化摘录 1 张</td></tr><tr><td>其余内容</td><td colspan="2">逐字未变</td></tr></table>' },
+    v3: { t: 'v2 → v3（引入错误的一版）', body: '<table class="t"><tr><th>位置</th><th>v2</th><th>v3</th></tr><tr><td>关键参数 · 平台</td><td>CEP-A</td><td>CEP-B <span class="tag red">错——自动重建时把井链错了（设定书 §A.1：N-02 平台为 CEP-A）</span></td></tr><tr><td>其余内容</td><td colspan="2">逐字未变</td></tr></table>' }
+  };
+  function setVer(v) {
+    document.getElementById('diff-title').textContent = DIFF[v].t;
+    document.getElementById('diff-body').innerHTML = DIFF[v].body;
+  }
+  function markCurrent() {
+    ['v1', 'v2', 'v3'].forEach(function (v) {
+      document.getElementById('vm-' + v).innerHTML = (v === CUR) ? ' <span class="tag blue">当前版</span>' : '';
+    });
+    document.getElementById('wiki-cur').textContent = '当前版：' + CUR;
+  }
+  function rollback() {
+    var banner = document.getElementById('rb-banner');
+    if (CUR === 'v3') {
+      CUR = 'v2';
+      markCurrent();
+      document.getElementById('wp-cell').innerHTML = 'CEP-A <span class="anno">（已随回滚恢复 · 设定书 §A.1）</span>';
+      var w = document.getElementById('wp-warn');
+      if (w) w.parentNode.removeChild(w);
+      banner.textContent = '已回滚：当前版 = v2，平台恢复 CEP-A。注意：回滚本身也记成一次新提交（可再滚回）（W-F52-2）。';
+    } else {
+      banner.textContent = '当前已是回滚后的版本（' + CUR + '）。回滚本身也记成一次新提交，可继续回滚到更早版本（W-F52-2）。';
+    }
+    banner.style.display = '';
+    setVer(CUR);
+  }
+  setVer('v3');
+</script>
+<script src="assets/wire.js"></script>
+</body></html>

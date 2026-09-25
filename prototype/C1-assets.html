@@ -1,0 +1,309 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>Petro-Agent 原型 · 指标与术语 · 指标与业务术语库</title>
+<link rel="stylesheet" href="assets/shell.css">
+<style>
+  /* 换壳兼容：大块披露内容（导出文件样例）用 details.card 套卡片外观；shell 的 details.note 只装小注记 */
+  details.card > summary { cursor:pointer; font-weight:600; font-size:13.5px; }
+</style>
+</head><body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>Petro-Agent</b><span>油田智能平台（原型）</span></div>
+    <nav>
+      <div class="grp">工作台</div>
+      <a class="item" href="A1-chat.html">💬 问一问</a>
+      <a class="item" href="A2-well.html">🛢 井档案</a>
+      <a class="item" href="A3-action.html">✅ 变更审批</a>
+      <div class="grp">报告库</div>
+      <a class="item" href="B1-kb.html">📄 报告库</a>
+      <a class="item sub" href="B2-chunks.html">答案出处</a>
+      <a class="item sub" href="B3-faq.html">常见问题</a>
+      <a class="item sub" href="B4-wiki.html">报告百科</a>
+      <a class="item sub" href="B5-graph.html">关系图谱</a>
+      <div class="grp">指标与术语</div>
+      <a class="item here" href="C1-assets.html">📏 指标与业务术语</a>
+      <a class="item sub" href="C2-proposals.html">修改审批台</a>
+      <a class="item sub" href="C3-ci.html">发布前安检</a>
+      <div class="grp">设置中心</div>
+      <a class="item" href="D1-gateway.html">⚙️ 模型与线路</a>
+      <a class="item sub" href="D2-retrieval.html">搜索与回答</a>
+      <a class="item sub" href="D3-security.html">安全与权限</a>
+      <a class="item sub" href="D4-system.html">系统状态</a>
+      <a class="item sub" href="D5-observe.html">运行追踪</a>
+      <a class="item sub" href="D6-pipeline.html">数据接入与加工</a>
+      <div class="grp">考核与质量</div>
+      <a class="item" href="E1-eval.html">🎯 答题考核</a>
+      <a class="item sub" href="E2-quality.html">数据质量台</a>
+      <a class="item sub" href="E3-checkup.html">知识体检</a>
+      <div class="grp">平台</div>
+      <a class="item" href="F1-expose.html">🔌 对外接口</a>
+      <a class="item" href="index.html">🗺 平台总览</a>
+    </nav>
+    <div class="foot">演示数据 · 不连真实系统<br>契约溯源见每页底部</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1>指标与业务术语库<span class="crumb">C 区 · 指标与术语 · 阿强维护 · 全体查阅</span></h1>
+      <div class="spacer"></div>
+      <span class="search">🔍 搜井号 / 报告 / 指标…</span>
+      <select class="role"><option>老王 · 油藏工程师</option><option>小李 · 地质/质检</option><option>主任 · 汇报人</option><option>阿强 · 平台运维</option></select>
+      <span class="tag grey">当前角色：阿强（本区默认）</span>
+      <span class="badge-demo">演示环境</span>
+    </header>
+
+    <div class="content">
+      <p class="purpose">平台的"业务字典"，四本账：业务术语、指标口径、对象与关系、分析剧本。每个数怎么算、每个词什么意思，都在这里一次说清；改任何一条都要走审批，不让同名不同数。</p>
+
+      <div class="tabs mb">
+        <a class="here" href="C1-assets.html">指标与术语库</a>
+        <a href="C2-proposals.html">修改审批台</a>
+        <a href="C3-ci.html">发布前安检</a>
+        <a href="C4-metrics.html">指标口径详情</a>
+      </div>
+
+      <div class="row">
+        <!-- 左：四本账 -->
+        <div class="col">
+          <div class="card">
+            <div class="anno">四本账四个页签，点上面切换。账上每条都带：负责人 / 状态 / 来源 / 版本。</div>
+            <div data-tabs class="tabs mt">
+              <button class="tabbtn on" data-tab="glossary">业务术语</button>
+              <button class="tabbtn" data-tab="metrics">指标口径</button>
+              <button class="tabbtn" data-tab="ontology">对象与关系</button>
+              <button class="tabbtn" data-tab="playbook">分析剧本</button>
+            </div>
+
+            <!-- ① 业务术语 -->
+            <div data-panel="glossary">
+              <div class="row mt">
+                <div class="w33"><div class="hd">按状态筛</div>
+                  <select id="t-status" class="input" onchange="applyTermFilter()">
+                    <option value="all">全部状态</option>
+                    <option value="valid">有效</option>
+                    <option value="banned">禁用词</option>
+                    <option value="valid-context">有效（限作业区语境）</option>
+                    <option value="valid-pending">有效（待联席裁决）</option>
+                    <option value="valid-quote">有效（引用马涛）</option>
+                  </select></div>
+                <div class="w33"><div class="hd">按负责人筛</div>
+                  <select id="t-owner" class="input" onchange="applyTermFilter()">
+                    <option value="all">全部负责人</option>
+                    <option value="开发室">开发室</option>
+                    <option value="采油工艺所">采油工艺所</option>
+                    <option value="地质研究所">地质研究所</option>
+                    <option value="语义Owner">语义 Owner</option>
+                  </select></div>
+                <div class="col"><div class="hd">筛选结果</div><div><b id="t-count">10</b> / 10 条</div></div>
+              </div>
+              <table class="t mt">
+                <thead><tr><th>术语</th><th>类型</th><th>定义</th><th>状态</th><th>负责人</th><th>来源</th><th>版本</th></tr></thead>
+                <tbody id="terms-t">
+                  <tr data-status="banned" data-owner="开发室"><td><b>老完成率</b></td><td><span class="tag red">禁用词</span></td><td>v1 口径（不含自用油折算），2024 年废弃</td><td>禁用（替代：产量完成率）</td><td>开发室</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid" data-owner="开发室"><td>剔检产量</td><td>别名 → 净产量</td><td>剔除检修井口径</td><td>有效</td><td>开发室</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid" data-owner="开发室"><td><b>有效产量</b></td><td><span class="tag blue">一词两译</span></td><td>需修饰词消歧（开井日历 / 剔检）</td><td>有效</td><td>开发室</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid-context" data-owner="采油工艺所"><td>躺井</td><td>黑话 → 停产待检泵</td><td>作业区口语</td><td>有效（限作业区语境）</td><td>采油工艺所</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid" data-owner="采油工艺所"><td>时率</td><td>缩写 → 抽油机时率</td><td>见指标 14</td><td>有效</td><td>采油工艺所</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid" data-owner="地质研究所"><td>水淹层</td><td>术语</td><td>驱替前沿到达的高含水层段</td><td>有效</td><td>地质研究所</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid-pending" data-owner="采油工艺所"><td>递减增油</td><td>术语</td><td>见指标 10（含口径争议注记）</td><td>有效（待联席裁决）</td><td>采油工艺所</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid" data-owner="开发室"><td>存水率</td><td>术语</td><td>注入水留存地层比例（物质平衡用）</td><td>有效</td><td>开发室</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid" data-owner="采油工艺所"><td>配注合格率</td><td>术语</td><td>分层实注 / 配注 达标井次占比</td><td>有效</td><td>采油工艺所</td><td>设定书 §6</td><td>v1</td></tr>
+                  <tr data-status="valid-quote" data-owner="语义Owner"><td>三多四难</td><td>治理热词</td><td>数据库多、平台多、孤立应用多 / 共享难、复用难、开发难、协同难</td><td>有效（引用马涛）</td><td>语义 Owner</td><td>设定书 §6</td><td>v1</td></tr>
+                </tbody>
+              </table>
+              <details class="note"><summary>禁用词、黑话与一词两译怎么处理</summary><div class="body">问出禁用词「老完成率」，平台拒答并给替代叫法"产量完成率"，不悄悄按旧口径算（W-F19-1）。黑话「躺井」只在作业区语境生效（设定书 §6）。一词两译「有效产量」→ <a href="C4-metrics.html">去指标口径详情看平台的澄清窗</a>。</div></details>
+            </div>
+
+            <!-- ② 指标口径（15 条全列） -->
+            <div data-panel="metrics" style="display:none">
+              <div class="row mt">
+                <div class="w33"><div class="hd">按负责人筛</div>
+                  <select id="m-owner" class="input" onchange="applyMetricFilter()">
+                    <option value="all">全部负责人</option>
+                    <option value="开发室">开发室</option>
+                    <option value="采油工艺所">采油工艺所</option>
+                    <option value="销售计量站">销售计量站</option>
+                  </select></div>
+                <div class="col"><div class="hd">筛选结果</div><div><b id="m-count">15</b> / 15 条</div></div>
+              </div>
+              <table class="t mt">
+                <thead><tr><th>#</th><th>指标</th><th>定义与公式</th><th>粒度 · 单位</th><th>状态</th><th>负责人</th><th>数据源</th><th>争议注记</th></tr></thead>
+                <tbody id="metrics-t">
+                  <tr data-owner="开发室"><td>1</td><td><b>★产量完成率</b></td><td>Σ实际产油 ÷ Σ计划配产 × 100%</td><td>月（按区块 / 油田）· %</td><td><span class="tag green">生效中</span></td><td>开发室</td><td>A.2 日产计量＋配产表</td><td>计划版本切换日双值</td></tr>
+                  <tr data-owner="开发室"><td>2</td><td><b>★有效产量（两支口径）</b> <a href="C4-metrics.html">→ 口径详情</a></td><td>开井日历折算 / 检修剔除</td><td>月 · 吨</td><td><span class="tag green">生效中</span></td><td>开发室</td><td>A.2 日产计量＋A.4 检修台账</td><td>跨月检修切割</td></tr>
+                  <tr data-owner="开发室"><td>3</td><td>☆自然递减率</td><td>月：1 − q_t / q_(t−1)（扣新井与措施增油）；年化：指数拟合 q(t)=q_i·e^(−Dt)</td><td>月 · 年 · %</td><td><span class="tag green">生效中</span></td><td>开发室</td><td>A.2 日产计量</td><td>措施扣除口径</td></tr>
+                  <tr data-owner="开发室"><td>4</td><td>☆综合递减率</td><td>不扣措施的对比期递减</td><td>月 · 年 · %</td><td><span class="tag green">生效中</span></td><td>开发室</td><td>A.2 日产计量</td><td>与自然递减率混用事故</td></tr>
+                  <tr data-owner="开发室"><td>5</td><td>☆综合含水率</td><td>Q_w ÷（Q_o＋Q_w）× 100%</td><td>月 · %</td><td><span class="tag green">生效中</span></td><td>开发室</td><td>A.2 日产计量＋A.6 化验</td><td>化验 vs 计量打架</td></tr>
+                  <tr data-owner="采油工艺所"><td>6</td><td>☆注采比 β</td><td>月注水量 ÷ 月产液量（体积折算）</td><td>月 · 无量纲</td><td><span class="tag green">生效中</span></td><td>采油工艺所</td><td>A.3 注水日报＋A.2 日产计量</td><td>折算系数按区块</td></tr>
+                  <tr data-owner="开发室"><td>7</td><td>☆累积亏空</td><td>Σ注水 − Σ产液</td><td>累计 · 方</td><td><span class="tag green">生效中</span></td><td>开发室</td><td>A.3 注水日报＋A.2 日产计量</td><td>—</td></tr>
+                  <tr data-owner="采油工艺所"><td>8</td><td>☆措施有效率 η</td><td>N_y ÷ N_z × 100%（有效井次 ÷ 总井次）</td><td>批次 · %</td><td><span class="tag green">生效中</span></td><td>采油工艺所</td><td>A.5 措施台账</td><td>"有效"判据</td></tr>
+                  <tr data-owner="采油工艺所"><td>9</td><td>☆措施有效期 T</td><td>t₂ − t₁（天）</td><td>单井 · 措施 · 天</td><td><span class="tag green">生效中</span></td><td>采油工艺所</td><td>A.5 措施台账</td><td>30% 行缺失</td></tr>
+                  <tr data-owner="采油工艺所"><td>10</td><td>☆递减增油</td><td>受效油井实际产油 − 按 d_a 拟合基线 q₀(1−d_a)^t；多井受效按劈分系数（Σ=1）分摊；多措施叠加以主要措施为主</td><td>井组 · 年 · 吨</td><td><span class="tag green">生效中</span> <span class="tag amber">待联席裁决</span></td><td>采油工艺所（开发室联席）</td><td>A.2＋A.5＋受效关系</td><td><b>一数多源争议之最（事故 7）</b></td></tr>
+                  <tr data-owner="销售计量站"><td>11</td><td><b>★商品量</b></td><td>脱水稳定后净重（扣自用油输差）</td><td>月 · 吨</td><td><span class="tag green">生效中</span></td><td>销售计量站</td><td>A.8 月度结算</td><td>与井口口径天然不等</td></tr>
+                  <tr data-owner="采油工艺所"><td>12</td><td>☆机采系统能效</td><td>系统级 / 单元级 / 设备级三级＋统计限值（优良 / 合格）</td><td>月 · %</td><td><span class="tag green">生效中</span></td><td>采油工艺所</td><td>A.7 设备状态</td><td>分组限值</td></tr>
+                  <tr data-owner="采油工艺所"><td>13</td><td>☆检泵周期</td><td>本次检泵日 − 上次检泵日</td><td>单井 · 天</td><td><span class="tag green">生效中</span></td><td>采油工艺所</td><td>A.4 检修台账</td><td>—</td></tr>
+                  <tr data-owner="采油工艺所"><td>14</td><td>☆抽油机时率</td><td>Σ开井天数 ÷ Σ日历天 × 100%</td><td>月 · %</td><td><span class="tag green">生效中</span></td><td>采油工艺所</td><td>A.2 日产计量</td><td>—</td></tr>
+                  <tr data-owner="采油工艺所"><td>15</td><td>☆桶油增产成本</td><td>措施总投入 ÷ 折算增油量（桶，6.29 桶/m³）</td><td>批次 · 元/桶</td><td><span class="tag green">生效中</span></td><td>采油工艺所＋财务</td><td>A.5 措施台账＋ERP</td><td>经营 × 技术联席</td></tr>
+                </tbody>
+              </table>
+              <details class="note"><summary>★☆标记、来源与版本约定</summary><div class="body">★＝晨会常问、☆＝专业常用（设定书 §3 原文标记）。15 条为设定书 §3 全量收录，一条不多、一条不少；争议注记原样保留、不洗白。来源＝设定书 §3；版本统一 v1（演示预填——真实版本随每次口径变更 +1，发布前过 <a href="C3-ci.html">发布前安检</a>）。数据源列的 A.x＝设定书附录 A 生产库 8 表（§3 原文记作 §2.x）。指标 10 的裁决挂起状态同步自术语账（§6"递减增油"）。指标不是独立数字：注采比、含水率、压力恢复速度、产量由物质平衡互相咬着——改一个必须查一圈（→ <a href="C4-metrics.html">口径详情页的联动提示</a>）。</div></details>
+            </div>
+
+            <!-- ③ 对象与关系 -->
+            <div data-panel="ontology" style="display:none">
+              <details class="note mt"><summary>这本账为什么都是"草案"</summary><div class="body">本账条目全部取自设定书 §5 草案；状态统一"草案（待 Owner 审定）"——平台的规矩：机器只出候选，负责人审批后才进正式账（W-F19-4）。</div></details>
+              <div class="hd mt">业务对象（10 个）</div>
+              <table class="t mt">
+                <thead><tr><th>对象</th><th>属性 / 说明</th><th>状态</th><th>负责人</th><th>来源</th><th>版本</th></tr></thead>
+                <tbody>
+                  <tr><td><b>井</b></td><td>井号 / 井别 / 投产日 / 状态机</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>井筒</td><td>段 / 射孔 / 防砂</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>区块</td><td>（§5 未列属性）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>油田</td><td>（§5 未列属性）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>平台</td><td>（§5 未列属性）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>设备</td><td>（§5 未列属性）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>措施</td><td>（§5 未列属性）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>化验样</td><td>（§5 未列属性）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td><b>受效关系</b></td><td>注水井 → 受效油井，多对多；属性＝劈分系数（Σ=1）、响应起始日——系数劈分是强制要求（设定书 §5）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                  <tr><td>配注层</td><td>（§5 未列属性）</td><td>草案</td><td>—（未落）</td><td>设定书 §5</td><td>—（未落）</td></tr>
+                </tbody>
+              </table>
+              <div class="card mt" style="background:#f6f8fa"><div class="anno">负责人 / 版本两列在设定书 §5 草案里本来就没有——这里如实标"未落"，不编。缺负责人的条目正好是自动体检的补全建议来源（→ <a href="C2-proposals.html">修改审批台</a>的体检提案）。</div></div>
+              <div class="hd mt">对象之间的关系（5 条）</div>
+              <table class="t mt">
+                <thead><tr><th>关系</th><th>读法</th><th>来源</th></tr></thead>
+                <tbody>
+                  <tr><td>井 —隶属→ 区块 —隶属→ 油田</td><td>井属于哪个区块，区块属于哪个油田</td><td>设定书 §5</td></tr>
+                  <tr><td>平台 —承载→ 井</td><td>井装在哪个平台上</td><td>设定书 §5</td></tr>
+                  <tr><td>注水井 —受效→ 油井</td><td>哪口注水井的注水，效果落在哪口油井上</td><td>设定书 §5</td></tr>
+                  <tr><td>措施 —作用于→ 井</td><td>压裂 / 酸化等措施做在哪口井上</td><td>设定书 §5</td></tr>
+                  <tr><td>化验样 —取样自→ 井</td><td>化验的水样取自哪口井</td><td>设定书 §5</td></tr>
+                </tbody>
+              </table>
+              <div class="mt">
+                <div class="hd">哪些表能关联（白名单，不在单子上的默认不给连）</div>
+                <table class="t mt">
+                  <thead><tr><th>能否关联</th><th>两张表</th><th>说明</th></tr></thead>
+                  <tbody>
+                    <tr><td><span class="tag green">可以</span></td><td>日产计量 <code>oil_production_daily</code> ⋈ 井档案 <code>well_info</code></td><td>用井号连</td></tr>
+                    <tr><td><span class="tag green">可以</span></td><td>日产计量 <code>oil_production_daily</code> ⋈ 日期维表 <code>date_dim</code></td><td>按日期连</td></tr>
+                    <tr><td><span class="tag amber">默认不给</span></td><td>日产计量 <code>oil_production_daily</code> ⋈ 化验样 <code>fluid_test</code></td><td>须井号＋取样日期双键＋时间容差，经清洗层视图中转</td></tr>
+                    <tr><td><span class="tag amber">默认不给</span></td><td>日产计量 <code>oil_production_daily</code> ⋈ 注水日报 <code>water_injection_daily</code>（直连）</td><td>须经"受效关系"这个对象中转，不许硬拼</td></tr>
+                  </tbody>
+                </table>
+                <details class="note"><summary>白名单怎么起作用</summary><div class="body">问"哪两张表能连"，白名单说了算：单子外的关联平台拒绝并给合法连法，不硬拼出错数（W-F19-2）。技术叫法：合法关联白名单（对象与关系账）。</div></details>
+              </div>
+            </div>
+
+            <!-- ④ 分析剧本 -->
+            <div data-panel="playbook" style="display:none">
+              <details class="note mt"><summary>什么是分析剧本</summary><div class="body">分析剧本＝一类问题（如"为什么下滑"）的固定做法：平台按步骤走，不自由发挥（W-F19-3）。两个剧本都取自设定书 §7。</div></details>
+              <div class="card mt">
+                <div class="hd">剧本 1《产量下滑归因》</div>
+                <div class="mt">听到哪类问题开工：<b>"为什么下滑"</b></div>
+                <ol class="mt">
+                  <li>拉完成率与构成（产油 / 开井数 / 时率）</li>
+                  <li>分解：新井贡献 / 老井递减 / 措施增油 / 停产影响（用指标 3 / 8 / 10）</li>
+                  <li>归因分支：地质——含水上升？工程——检泵停产？管理——配产调整？</li>
+                  <li>下钻受效关系与检修台账</li>
+                  <li>生成归因报告</li>
+                </ol>
+                <div class="row mt">
+                  <div class="w50"><div class="hd">参数没给够怎么办（缺参策略）</div><div class="anno">时间窗默认最近 30 天、范围默认全区块，并明确标注"默认"</div></div>
+                  <div class="w50"><div class="hd">哪步要人确认</div><div class="anno">机器建议占比与置信度高→少问人；低→必须人工确认档位（设定书 §7）</div></div>
+                </div>
+                <div class="row mt">
+                  <div class="w50"><div class="hd">交付物合同（输出合同）</div><div class="anno">结论＋证据链＋数据版本——三样齐才算答完</div></div>
+                  <div class="w50"><div class="hd">来源 / 负责人 / 状态 / 版本</div><div class="anno">设定书 §7 · 负责人未落（如实标注）· 草案（待 Owner 审定）· v1</div></div>
+                </div>
+              </div>
+              <div class="card mt">
+                <div class="hd">剧本 2《注水井措施评估》</div>
+                <div class="flow mt">
+                  <span class="step">定口径（递减增油）</span><span class="arr">→</span>
+                  <span class="step">有效性判定</span><span class="arr">→</span>
+                  <span class="step">技术指标计算（指标 8–10）</span><span class="arr">→</span>
+                  <span class="step">受效判断</span><span class="arr">→</span>
+                  <span class="step">劈分系数</span><span class="arr">→</span>
+                  <span class="step">增油核算</span><span class="arr">→</span>
+                  <span class="step">桶油成本</span><span class="arr">→</span>
+                  <span class="step">归档进"已验证指标"证据</span>
+                </div>
+                <details class="note"><summary>剧本 2 的来源与登记口径</summary><div class="body">来源＝设定书 §7 · 负责人未落（如实标注）· 状态＝草案（待 Owner 审定）· 版本 v1。设定书 §7 注记：本剧本为王飞 11 步流程的摘要版；步骤级"每步用哪个工具"在设定书里未逐条列出——如实标注，不编（能力域契约要求登记：触发意图 / 步骤 / 工具 / 缺参策略 / 人工确认点 / 输出合同 · F19）。</div></details>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：账本管理 + 导出 -->
+        <div class="w25">
+          <div class="card">
+            <div class="hd">账本总览</div>
+            <div class="mt">业务术语 <b>10</b> 条 · 指标口径 <b>15</b> 条 · 对象与关系 <b>10 实体＋5 关系</b> · 分析剧本 <b>2</b> 个</div>
+            <div class="anno mt">四本账条目与设定书 §6 / §3 / §5 / §7 逐条对得上，一条不编。</div>
+          </div>
+          <div class="card mt">
+            <div class="hd">导出通用格式（给别的系统用）</div>
+            <details class="card mt" id="ossie-box"><summary>点开看导出文件长什么样（一份定义，三处消费）</summary>
+<pre class="code mt"># 语义资产 → 通用格式导出（演示片段）
+# 同一份定义：平台问答 / BI 报表 / 外部智能助手都能读
+dataset:
+  name: oil_production_daily      # 日产计量（设定书 A.2）
+metric:
+  name: production_completion_rate
+  displayName: 产量完成率
+  definition: Σ实际产油 ÷ Σ计划配产 × 100%   # 设定书 §3 指标 1
+  unit: "%"
+  grain: 月（按区块 / 油田）
+  owner: 开发室
+  extensions:                     # 本项目特有字段进扩展段，不丢不污染标准段
+    modifiers: []
+    dispute_note: 计划版本切换日双值
+    version: v3
+relationship:
+  from: 注水井
+  to: 油井
+  type: 受效                      # 设定书 §5</pre>
+              <div class="mt"><button class="btn primary" onclick="fakeExport()">导出（演示：生成文件）</button> <span id="ossie-saved" class="anno" style="display:none">已生成导出文件 ossie-export.yaml（演示）——真实实现是一条导出命令，厂商细节进扩展段（W-F23-1/2）。</span></div>
+            </details>
+            <details class="note"><summary>这套导出的技术叫法</summary><div class="body">技术叫法：通用格式导出（开放语义层交换格式 · F23）。</div></details>
+          </div>
+          <div class="card mt" style="background:#f6f8fa">
+            <div class="hd">改这里的任何一条，都不直接生效</div>
+            <div class="mt">先提案（<a href="C2-proposals.html">修改审批台</a>）→ 过五道检查（<a href="C3-ci.html">发布前安检</a>）→ 负责人批准才发布，且可回滚。</div>
+            <details class="note"><summary>账本存在哪里</summary><div class="body">术语/口径/对象/剧本以配置文件形式登记、进版本管理（m16 语义层卡）。</div></details>
+          </div>
+        </div>
+      </div>
+
+      <div class="trace"><b>契约溯源</b><span class="sep">|</span>F19 语义层四域 · F23 通用格式导出 · m16 语义层卡 · W-F19-1/2/3/4 · W-F23-1/2</div>
+    </div>
+  </div>
+</div>
+<script>
+  function applyTermFilter() {
+    var st = document.getElementById('t-status').value;
+    var ow = document.getElementById('t-owner').value;
+    var n = 0;
+    document.querySelectorAll('#terms-t tr').forEach(function (r) {
+      var show = (st === 'all' || r.getAttribute('data-status') === st) &&
+                 (ow === 'all' || r.getAttribute('data-owner') === ow);
+      r.style.display = show ? '' : 'none';
+      if (show) n++;
+    });
+    document.getElementById('t-count').textContent = n;
+  }
+  function applyMetricFilter() {
+    var ow = document.getElementById('m-owner').value;
+    var n = 0;
+    document.querySelectorAll('#metrics-t tr').forEach(function (r) {
+      var show = (ow === 'all' || r.getAttribute('data-owner') === ow);
+      r.style.display = show ? '' : 'none';
+      if (show) n++;
+    });
+    document.getElementById('m-count').textContent = n;
+  }
+  function fakeExport() { document.getElementById('ossie-saved').style.display = ''; }
+</script>
+<script src="assets/wire.js"></script>
+</body></html>

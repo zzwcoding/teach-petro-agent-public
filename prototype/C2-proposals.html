@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title>Petro-Agent 原型 · 指标与术语 · 修改审批台</title>
+<link rel="stylesheet" href="assets/shell.css">
+<style>
+  /* 换壳兼容：状态徽标与筛选片由内联 JS / wire.js 动态改写类名（pill / pill.on / pill.warn），
+     类名必须原样保留，这里把它们映射到 shell 徽标与选中片视觉 */
+  .pill { display:inline-block; border-radius:4px; padding:1px 10px; font-size:12.5px; line-height:1.8; background:#eef1f5; color:#5b6675; cursor:pointer; }
+  a.pill.on { background:#1f5aa8; color:#fff; font-weight:600; }
+  span.pill.on { background:#e6f4ea; color:#1e7e42; font-weight:600; }
+  .pill.warn { background:#fdf3e3; color:#a15c00; }
+</style>
+</head><body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>Petro-Agent</b><span>油田智能平台（原型）</span></div>
+    <nav>
+      <div class="grp">工作台</div>
+      <a class="item" href="A1-chat.html">💬 问一问</a>
+      <a class="item" href="A2-well.html">🛢 井档案</a>
+      <a class="item" href="A3-action.html">✅ 变更审批</a>
+      <div class="grp">报告库</div>
+      <a class="item" href="B1-kb.html">📄 报告库</a>
+      <a class="item sub" href="B2-chunks.html">答案出处</a>
+      <a class="item sub" href="B3-faq.html">常见问题</a>
+      <a class="item sub" href="B4-wiki.html">报告百科</a>
+      <a class="item sub" href="B5-graph.html">关系图谱</a>
+      <div class="grp">指标与术语</div>
+      <a class="item" href="C1-assets.html">📏 指标与业务术语</a>
+      <a class="item sub here" href="C2-proposals.html">修改审批台</a>
+      <a class="item sub" href="C3-ci.html">发布前安检</a>
+      <div class="grp">设置中心</div>
+      <a class="item" href="D1-gateway.html">⚙️ 模型与线路</a>
+      <a class="item sub" href="D2-retrieval.html">搜索与回答</a>
+      <a class="item sub" href="D3-security.html">安全与权限</a>
+      <a class="item sub" href="D4-system.html">系统状态</a>
+      <a class="item sub" href="D5-observe.html">运行追踪</a>
+      <a class="item sub" href="D6-pipeline.html">数据接入与加工</a>
+      <div class="grp">考核与质量</div>
+      <a class="item" href="E1-eval.html">🎯 答题考核</a>
+      <a class="item sub" href="E2-quality.html">数据质量台</a>
+      <a class="item sub" href="E3-checkup.html">知识体检</a>
+      <div class="grp">平台</div>
+      <a class="item" href="F1-expose.html">🔌 对外接口</a>
+      <a class="item" href="index.html">🗺 平台总览</a>
+    </nav>
+    <div class="foot">演示数据 · 不连真实系统<br>契约溯源见每页底部</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1>修改审批台<span class="crumb">C 区 · 指标与术语 · Owner / 治理领导组审批 · 阿强组织评审</span></h1>
+      <div class="spacer"></div>
+      <span class="search">🔍 搜井号 / 报告 / 指标…</span>
+      <select class="role"><option>老王 · 油藏工程师</option><option>小李 · 地质/质检</option><option>主任 · 汇报人</option><option>阿强 · 平台运维</option></select>
+      <span class="tag grey">当前角色：Owner / 治理领导组（审批角色 · 本区默认阿强）</span>
+      <span class="badge-demo">演示环境</span>
+    </header>
+
+    <div class="content">
+      <p class="purpose">平台（智能助手）发现的每个问题，都变成一张"修改建议"统一进这个池子：给证据、给可信度、给优先级。谁都不能直接改正式定义——过安检、人批准，才生效，而且随时能退回来。</p>
+
+      <div class="tabs mb">
+        <a href="C1-assets.html">指标与术语库</a>
+        <a class="here" href="C2-proposals.html">修改审批台</a>
+        <a href="C3-ci.html">发布前安检</a>
+        <a href="C4-metrics.html">指标口径详情</a>
+      </div>
+
+      <!-- 四条铁律置顶 -->
+      <div class="card mb" style="background:#fdf3e3;border-color:#f0d9b5">
+        <div class="hd">铁律（永不违反 · 置顶展示）</div>
+        <div class="row mt">
+          <div class="w25"><b>1. 不直接改主干</b><div class="anno">建议先进池子；正式定义谁也不能伸手就改。</div></div>
+          <div class="w25"><b>2. 只提建议不自己合并</b><div class="anno">平台只能提，合不合并必须人点批准。</div></div>
+          <div class="w25"><b>3. 不改自动生成的文件</b><div class="anno">百科页、索引这类自动产物不手改——要改就改源头定义，自动产物随后自己刷新。</div></div>
+          <div class="w25"><b>4. 大改动必须人工批</b><div class="anno">产量口径这类高影响变更，必须 Owner / 治理领导组签字。</div></div>
+        </div>
+        <details class="note mt"><summary>这四条的技术叫法</summary><div class="body">技术叫法：只提合并请求、四条红线（F25 · W-F25-1/2）；"主干 / 派生物"的人话＝正式定义 / 自动生成的文件。</div></details>
+      </div>
+
+      <!-- 流转路线 -->
+      <div class="card mb" style="background:#f6f8fa">
+        <div class="hd">一张建议的流转路线</div>
+        <div class="flow mt">
+          <span class="step">提案进池（三个来源统一收口）</span><span class="arr">→</span>
+          <span class="step guard">过安检（<a href="C3-ci.html">发布前安检 · 五道检查</a>）</span><span class="arr">→</span>
+          <span class="step">负责人批准 🛡（人工点）</span><span class="arr">→</span>
+          <span class="step">生效（版本 +1，正式定义更新）</span><span class="arr">→</span>
+          <span class="step">发现不对？随时可回滚</span>
+        </div>
+        <details class="note mt"><summary>自动化与责任的边界</summary><div class="body">自动化止于提案，责任归于 Owner——平台不替人做决定（F25）。</div></details>
+      </div>
+
+      <!-- 三来源筛选 + 提案表 -->
+      <div class="card">
+        <div class="hd">提案池（按来源筛）</div>
+        <div class="mt">
+          <a class="pill on" id="f-all" onclick="filterProp('all')">全部来源</a>
+          <a class="pill" id="f-b" onclick="filterProp('benchmark')">考核没通过</a>
+          <a class="pill" id="f-c" onclick="filterProp('checkup')">自动体检发现</a>
+          <a class="pill" id="f-r" onclick="filterProp('runtime')">用户反馈</a>
+        </div>
+        <details class="note mt"><summary>三种来源怎么分流</summary><div class="body">三种来源同一张表、同一套字段，进同一个池子再分流（W-F24-1）。技术叫法：考核源 / 体检源 / 运行信号源。</div></details>
+        <table class="t mt">
+          <thead><tr><th style="width:26%">提案（改什么 · 为什么）</th><th>来源</th><th style="width:26%">证据</th><th>可信度</th><th>优先级</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="prop-t">
+            <tr data-src="benchmark" data-name="递减增油口径模板修订">
+              <td>修订「递减增油」口径模板：补上"多井受效按劈分系数（Σ=1）分摊"（设定书 §3 指标 10）</td>
+              <td><span class="tag red">考核没通过</span></td>
+              <td>考核用例「递减增油怎么算」判不通过——平台答案漏了劈分规则；两作业区算法本就不一致（事故 7 · 设定书 §A.5）</td>
+              <td>高（人工算的标准答案比对）</td>
+              <td>高</td>
+              <td><span class="pill warn" id="p1-badge" data-stage="wait">待审</span></td>
+              <td><button class="btn" id="p1-btn" onclick="actProp('p1')">过安检（送 C3）</button></td>
+            </tr>
+            <tr data-src="checkup" data-name="措施有效期标注">
+              <td>给「措施有效期」指标卡加"台账缺行"标注（设定书 §3 指标 9）</td>
+              <td><span class="tag blue">自动体检发现</span></td>
+              <td>体检四维评分：数据覆盖不足——措施台账的起止日期字段 30% 缺行（设定书 §A.5）</td>
+              <td>中</td>
+              <td>中</td>
+              <td><span class="pill" id="p2-badge" data-stage="checked">已过安检</span></td>
+              <td><button class="btn primary" id="p2-btn" onclick="actProp('p2')">批准 🛡（负责人签字）</button></td>
+            </tr>
+            <tr data-src="checkup" data-name="递减增油联席裁决">
+              <td>「递减增油」条目状态"待联席裁决"挂起——提请数据治理领导组联席会议裁决（设定书 §6）</td>
+              <td><span class="tag blue">自动体检发现</span></td>
+              <td>术语台账状态栏原文："有效（待联席裁决）"；指标侧注记"一数多源争议之最"（设定书 §3 指标 10 / §6）</td>
+              <td>高（条款原文）</td>
+              <td>高</td>
+              <td><span class="pill" id="p3-badge" data-stage="checked">已过安检</span></td>
+              <td><button class="btn primary" id="p3-btn" onclick="actProp('p3')">批准 🛡（负责人签字）</button></td>
+            </tr>
+            <tr data-src="runtime" data-name="有效产量默认口径">
+              <td>把「有效产量」默认口径正式定为"开井日历折算"，用户不选时按默认出数并标注（设定书 §3 指标 2）</td>
+              <td><span class="tag amber">用户反馈</span></td>
+              <td>运行信号：多候选澄清频繁＋老王反馈"别每次都反问我"；契约本就要求"不选按默认口径出数并标注"（F13）</td>
+              <td>中</td>
+              <td>中</td>
+              <td><span class="pill warn" id="p4-badge" data-stage="wait">待审</span></td>
+              <td><button class="btn" id="p4-btn" onclick="actProp('p4')">过安检（送 C3）</button></td>
+            </tr>
+            <tr data-src="benchmark" data-name="有效产量口径卡发布">
+              <td>「有效产量」指标卡补充修饰词说明（开井日历折算 / 剔检）——已走完全流程的样例（设定书 §3 指标 2 / §6）</td>
+              <td><span class="tag red">考核没通过</span></td>
+              <td>考核曾因"一词两译没消歧"答错——修订后同题重跑通过</td>
+              <td>高</td>
+              <td>高</td>
+              <td><span class="pill on" id="p5-badge" data-stage="live">已生效（v3）</span></td>
+              <td><button class="btn" id="p5-btn" onclick="actProp('p5')">回滚到上一版</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="card mt" id="prop-note" style="display:none;background:#f6f8fa"></div>
+        <details class="note mt"><summary>提案字段与体检说明</summary><div class="body">每条提案的统一字段：来源 / 证据 / 可信度 / 优先级 / 状态（本页表格的列就是这套字段 · F24 配置项"提案统一字段"）。体检源的体检＝给业务对象打四维分：资料全不全 / 逻辑顺不顺 / 数据覆盖够不够 / 关系健全不健全，附补全建议，建议经确认才合并（W-F24-2）→ <a href="E1-eval.html">考核与质量区</a>的考核失败也会自动登记到这里。</div></details>
+      </div>
+
+      <div class="trace"><b>契约溯源</b><span class="sep">|</span>F24 三源提案池与体检 · F25 只提合并请求（四条铁律） · m18 评估卡 · W-F24-1/2 · W-F25-1/2/3</div>
+    </div>
+  </div>
+</div>
+<script>
+  function note(msg) {
+    var n = document.getElementById('prop-note');
+    n.textContent = msg;
+    n.style.display = '';
+  }
+  function filterProp(src) {
+    document.querySelectorAll('#prop-t tr').forEach(function (r) {
+      r.style.display = (src === 'all' || r.getAttribute('data-src') === src) ? '' : 'none';
+    });
+    ['all', 'b', 'c', 'r'].forEach(function (k) {
+      document.getElementById('f-' + k).classList.toggle('on', k === src);
+    });
+  }
+  // 状态流转：待审 → 已过安检 → 已生效（→ 可回滚）
+  function actProp(id) {
+    var badge = document.getElementById(id + '-badge');
+    var btn = document.getElementById(id + '-btn');
+    var stage = badge.getAttribute('data-stage');
+    var name = '「' + (btn.closest('tr') ? btn.closest('tr').getAttribute('data-name') : '') + '」';
+    if (stage === 'wait') {
+      badge.setAttribute('data-stage', 'checked');
+      badge.className = 'pill';
+      badge.textContent = '已过安检';
+      btn.textContent = '批准 🛡（负责人签字）';
+      btn.classList.add('primary');
+      note(name + '已通过发布前安检（五道检查明细见 C3）——等负责人点批准，平台不会自己合并（铁律 2）。');
+    } else if (stage === 'checked') {
+      badge.setAttribute('data-stage', 'live');
+      badge.className = 'pill on';
+      badge.textContent = '已生效（v3）';
+      btn.textContent = '回滚到上一版';
+      btn.classList.remove('primary');
+      note(name + '已生效：版本 +1，正式定义更新；自动生成的百科页、索引等派生物随后自动刷新（不手改 · 铁律 3）。');
+    } else {
+      badge.setAttribute('data-stage', 'checked');
+      badge.className = 'pill';
+      badge.textContent = '已过安检';
+      btn.textContent = '批准 🛡（负责人签字）';
+      btn.classList.add('primary');
+      note(name + '已回滚：版本回退，正式定义与各处显示恢复一致（W-F25-3）。');
+    }
+  }
+</script>
+<script src="assets/wire.js"></script>
+</body></html>

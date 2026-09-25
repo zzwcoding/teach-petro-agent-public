@@ -1,0 +1,249 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<title> Petro-Agent 原型 · 报告库 · 关系图谱</title>
+<link rel="stylesheet" href="assets/shell.css">
+<style>
+  .switch { position:relative; }
+  button.switch { border:none; background:none; padding:0; font-family:inherit; color:inherit; }
+  .edge { padding:2px 8px; border:1px solid transparent; border-radius:4px; font-size:13px; }
+  .edge.on { background:#e8f0fb; border-color:#1f5aa8; font-weight:600; }
+  .edge.off { opacity:.35; text-decoration:line-through; }
+  #graph-nodes .node { cursor:pointer; background:#fff; border:1.5px solid #1f5aa8; color:#14335c; border-radius:18px; padding:4px 14px; font-size:12.5px; font-weight:600; }
+  #graph-nodes .node.done { background:#1f5aa8; color:#fff; }
+</style></head><body>
+<div class="app">
+  <aside class="side">
+    <div class="logo"><b>Petro-Agent</b><span>油田智能平台（原型）</span></div>
+    <nav>
+      <div class="grp">工作台</div>
+      <a class="item" href="A1-chat.html">💬 问一问</a>
+      <a class="item" href="A2-well.html">🛢 井档案</a>
+      <a class="item" href="A3-action.html">✅ 变更审批</a>
+      <div class="grp">报告库</div>
+      <a class="item" href="B1-kb.html">📄 报告库</a>
+      <a class="item sub" href="B2-chunks.html">答案出处</a>
+      <a class="item sub" href="B3-faq.html">常见问题</a>
+      <a class="item sub" href="B4-wiki.html">报告百科</a>
+      <a class="item sub here" href="B5-graph.html">关系图谱</a>
+      <div class="grp">指标与术语</div>
+      <a class="item" href="C1-assets.html">📏 指标与业务术语</a>
+      <a class="item sub" href="C2-proposals.html">修改审批台</a>
+      <a class="item sub" href="C3-ci.html">发布前安检</a>
+      <div class="grp">设置中心</div>
+      <a class="item" href="D1-gateway.html">⚙️ 模型与线路</a>
+      <a class="item sub" href="D2-retrieval.html">搜索与回答</a>
+      <a class="item sub" href="D3-security.html">安全与权限</a>
+      <a class="item sub" href="D4-system.html">系统状态</a>
+      <a class="item sub" href="D5-observe.html">运行追踪</a>
+      <a class="item sub" href="D6-pipeline.html">数据接入与加工</a>
+      <div class="grp">考核与质量</div>
+      <a class="item" href="E1-eval.html">🎯 答题考核</a>
+      <a class="item sub" href="E2-quality.html">数据质量台</a>
+      <a class="item sub" href="E3-checkup.html">知识体检</a>
+      <div class="grp">平台</div>
+      <a class="item" href="F1-expose.html">🔌 对外接口</a>
+      <a class="item" href="index.html">🗺 平台总览</a>
+    </nav>
+    <div class="foot">演示数据 · 不连真实系统<br>契约溯源见每页底部</div>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <h1>关系图谱<span class="crumb">B 区 · 报告库 · 为小李设计</span></h1>
+      <div class="spacer"></div>
+      <span class="search">🔍 搜井号 / 报告 / 指标…</span>
+      <select class="role"><option>老王 · 油藏工程师</option><option>小李 · 地质/质检</option><option>主任 · 汇报人</option><option>阿强 · 平台运维</option></select>
+      <span class="badge-demo">演示环境</span>
+    </header>
+
+    <div class="content">
+      <p class="purpose">从报告里抽出来的关系网：井—隶属→区块、注水—受效→油井。问"哪些井受过 N-06 注水影响"，沿关系走一步就答，不靠翻 200 页报告。</p>
+
+      <div class="tabs mb">
+        <a href="B1-kb.html">报告库</a>
+        <a href="B2-chunks.html">答案出处</a>
+        <a href="B3-faq.html">常见问答库</a>
+        <a href="B4-wiki.html">报告百科</a>
+        <a class="here" href="B5-graph.html">关系图谱</a>
+      </div>
+
+      <div class="card mb" style="background:#fdf3e3;border-color:#f0d9b5"><b>铁律：图谱入库前过闸，对不上的关系不立边</b>——类型对不上的不立、原文里没有的关系不立；拿不准宁可跳过，不胡编。拦下的边不进图，"图和库对得上"正是图在执法的证据（F55 · W-F55-2）。</div>
+
+      <div class="row">
+        <!-- 关系网 -->
+        <div class="w60">
+          <div class="card">
+            <div class="hd">关系网（点节点看它的关系）</div>
+            <div class="anno">演示库只有 3 口样本井（设定书 §1：全油田 120 口在产井）；节点和边全部来自报告与台账（设定书 §5 / §A）。</div>
+            <div class="mt" id="graph-nodes">
+              <div class="flow">
+                <span class="node" onclick="pickNode(this)" data-node="N-06" data-type="well">N-06（注水井）</span>
+                <span class="node" onclick="pickNode(this)" data-node="N-02" data-type="well">N-02（采油井）</span>
+                <span class="node" onclick="pickNode(this)" data-node="N-11" data-type="well">N-11（采油井）</span>
+                <span class="node" onclick="pickNode(this)" data-node="CA" data-type="measure">措施：检泵（N-11）</span>
+              </div>
+              <div class="flow mt">
+                <span class="node" onclick="pickNode(this)" data-node="CEP-A" data-type="platform">平台 CEP-A</span>
+                <span class="node" onclick="pickNode(this)" data-node="CEP-B" data-type="platform">平台 CEP-B</span>
+                <span class="node" onclick="pickNode(this)" data-node="BN" data-type="block">区块：渤南</span>
+                <span class="node" onclick="pickNode(this)" data-node="BZ" data-type="block">区块：渤中</span>
+                <span class="node" onclick="pickNode(this)" data-node="FL" data-type="field">渤海油田</span>
+              </div>
+            </div>
+            <div class="hd mt">关系清单（高亮＝所选节点的相邻关系）</div>
+            <div id="edges" class="mt">
+              <div class="edge" data-a="N-02" data-b="BN">N-02 —隶属→ 渤南区块</div>
+              <div class="edge" data-a="N-06" data-b="BN">N-06 —隶属→ 渤南区块</div>
+              <div class="edge" data-a="N-11" data-b="BZ">N-11 —隶属→ 渤中区块</div>
+              <div class="edge" data-a="BN" data-b="FL">渤南区块 —隶属→ 渤海油田</div>
+              <div class="edge" data-a="BZ" data-b="FL">渤中区块 —隶属→ 渤海油田</div>
+              <div class="edge" data-a="CEP-A" data-b="N-02">平台 CEP-A —承载→ N-02</div>
+              <div class="edge" data-a="CEP-A" data-b="N-06">平台 CEP-A —承载→ N-06</div>
+              <div class="edge" data-a="CEP-B" data-b="N-11">平台 CEP-B —承载→ N-11</div>
+              <div class="edge" data-a="N-06" data-b="N-02">N-06 —受效→ N-02　<span class="anno">（受效关系：劈分系数合计＝1、响应起始日随台账 · 设定书 §5 · 演示边）</span></div>
+              <div class="edge" data-a="CA" data-b="N-11">措施：检泵 —作用于→ N-11　<span class="anno">（批次 20260911-T3 · 设定书 §A.4）</span></div>
+            </div>
+            <details class="note"><summary>边上的关系标签（隶属 / 承载 / 受效 / 作用于）按库的抽取设置来</summary><div class="body">强度 5–10 打分参与回答权重（F40）。</div></details>
+          </div>
+        </div>
+
+        <!-- 相邻关系 + 受效问答 -->
+        <div class="col">
+          <div class="card">
+            <div class="hd">所选节点的相邻关系</div>
+            <div id="adj" class="mt"><div class="anno">点左边任意节点。</div></div>
+          </div>
+          <div class="card mt">
+            <div class="hd">走关系回答问题（不翻全文）</div>
+            <div class="mt"><button class="btn primary" onclick="askEffect()">问：哪些井受过 N-06 注水影响？</button></div>
+            <div id="effect-ans" class="card mt" style="display:none;background:#f6f8fa">
+              <b>答：</b>沿"受效"关系走一步：N-02（受效油井，劈分系数随台账）。<span class="anno">演示库仅装配 3 口样本井（设定书 §1）；真实平台沿图遍历返回全量受效井。</span>
+              <details class="note mt"><summary>查询先精确锚定 @N-06</summary><div class="body">井档案对号，命中直达图邻域；图检索与语义/关键词搜索并行汇入回答（W-F40-5 / W-F55-3）。</div></details>
+            </div>
+          </div>
+          <div class="card mt">
+            <div class="hd">图例（点类型可隐去/显示）</div>
+            <div class="mt">
+              <button class="switch on" id="ty-well" onclick="flipType('well')">井（3）</button>
+              <button class="switch on" id="ty-block" onclick="flipType('block')">区块（2）</button>
+              <button class="switch on" id="ty-platform" onclick="flipType('platform')">平台（2）</button>
+              <button class="switch on" id="ty-field" onclick="flipType('field')">油田（1）</button>
+              <button class="switch on" id="ty-measure" onclick="flipType('measure')">措施（1）</button>
+            </div>
+            <details class="note"><summary>默认 11 类通用实体（人物 / 组织 / 地点 / 产品 / 事件 / 日期 / 工作 / 概念 / 资源 / 类别 / 操作）</summary><div class="body">本库已换成油田领域类型——用领域术语表逐一对号，治"类型漂移"（F40 / F55 · W-F55-1）。</div></details>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt">
+        <!-- 三道关 -->
+        <div class="w50">
+          <div class="card" style="height:100%">
+            <div class="hd">图谱的三道关（三接入点）</div>
+            <div data-tabs class="tabs mt">
+              <button class="tabbtn on" data-tab="g1">建图时</button>
+              <button class="tabbtn" data-tab="g2">入图前</button>
+              <button class="tabbtn" data-tab="g3">查询时</button>
+            </div>
+            <div data-panel="g1">
+              <div class="card" style="background:#f6f8fa">抽什么类型，不是模型说了算：抽取的类型清单对着领域术语表逐一对号，对不上的不许自创（治"类型漂移" · W-F55-1）。</div>
+              <details class="note mt"><summary>技术上叫"抽取设置替换对号表"</summary><div class="body">默认 11 类通用实体是弱模式，领域本体是强模式。</div></details>
+            </div>
+            <div data-panel="g2" style="display:none">
+              <div class="flow"><span class="step guard">入库闸</span><span class="arr">→</span><span class="step">关系网</span></div>
+              <div class="card mt" style="background:#f6f8fa">抽出来的边先过闸再进图：类型对不上不立边、原文没有的不立边。拦下的边正是"图在执法"的证据（W-F55-2）。</div>
+            </div>
+            <div data-panel="g3" style="display:none">
+              <div class="card" style="background:#f6f8fa">先精确锚定（@N-06）直达图邻域，图检索做兜底；黑话和禁用词（如"躺井"）被术语闸拦在入图之前；域外问题先拒答（W-F55-3）。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 抽取设置 + 五流派 -->
+        <div class="col">
+          <div class="card">
+            <div class="hd">抽取设置（按库配置，预填当前值）</div>
+            <textarea class="code mt" rows="5">实体类型：井 / 区块 / 油田 / 平台 / 措施（默认 11 类通用实体，可换领域术语表对号）
+关系标签：隶属 / 承载 / 受效 / 作用于
+示例：N-06 —受效→ N-02（劈分系数合计＝1）· 检泵 —作用于→ N-11
+自定义指令：关系必须原文有依据；拿不准宁可跳过，不许创造新类型</textarea>
+            <div class="mt"><button class="btn" onclick="fakeSave('b5-saved')">保存抽取设置</button> <span id="b5-saved" class="anno" style="display:none">已保存（演示）——设置在下次入库时生效。</span></div>
+            <details class="note"><summary>无正文的块（纯图片说明）不送抽取</summary><div class="body">防复读示例、防重复计费（W-F40-3）。</div></details>
+          </div>
+          <div class="card mt">
+            <div class="hd">这份图谱是怎么建出来的（五种做法，何时选谁）</div>
+            <div data-tabs class="tabs mt">
+              <button class="tabbtn on" data-tab="wD">D 抽取图谱（本库）</button>
+              <button class="tabbtn" data-tab="wA">A 治理仓</button>
+              <button class="tabbtn" data-tab="wB">B 聚类</button>
+              <button class="tabbtn" data-tab="wC">C 两步走</button>
+              <button class="tabbtn" data-tab="wE">E 直给</button>
+            </div>
+            <div data-panel="wD">
+              <div class="card" style="background:#f6f8fa">逐段抽"谁—什么关系→谁"，配类型闸防胡编；应用顺手、上手快。要上生产的域，建议再配 A 治理仓（W-F40-2）。</div>
+            </div>
+            <div data-panel="wA" style="display:none">
+              <div class="card" style="background:#f6f8fa">先有受治理的术语与关系仓（每条带负责人、版本），抽取照仓对号入座；上生产选它。</div>
+            </div>
+            <div data-panel="wB" style="display:none">
+              <div class="card" style="background:#f6f8fa">不知道有哪些类型时先自由发现：抽名词→自动聚类→给组起名；新域探路用，探完收编进治理仓（W-F41-1）。</div>
+            </div>
+            <div data-panel="wC" style="display:none">
+              <div class="card" style="background:#f6f8fa">先列概念清单、再排层次结构，快速出第一版验证想法；层次易铺平是它的坑（W-F41-2）。</div>
+            </div>
+            <div data-panel="wE" style="display:none">
+              <div class="card" style="background:#f6f8fa">一个提示词端到端，半小时出活——但措辞敏感、两次跑两样，只适用于快速验证与原型（W-F41-3）。</div>
+            </div>
+            <details class="note"><summary>同一份油田语料五种建法各走一遍、同一组评估问题对照</summary><div class="body">何时选谁看决策树，不评"谁最好"（F42）。</div></details>
+          </div>
+        </div>
+      </div>
+
+      <div class="trace"><b>契约溯源</b><span class="sep">|</span>F40 抽取图谱 · F41 B/C/E 派速览 · F42 五流派擂台 · F55 图谱三接入点 · m6 问答管道卡 / m16 语义层卡 · W-F40-2/3/5 · W-F41-1/2/3 · W-F42-2 · W-F55-1/2/3</div>
+    </div>
+  </div>
+</div>
+<script>
+  function pickNode(el) {
+    var id = el.getAttribute('data-node');
+    var nodes = document.querySelectorAll('#graph-nodes .node');
+    for (var i = 0; i < nodes.length; i++) nodes[i].classList.toggle('done', nodes[i] === el);
+    var lines = [], edges = document.querySelectorAll('#edges .edge');
+    for (var j = 0; j < edges.length; j++) {
+      var e = edges[j];
+      var on = e.getAttribute('data-a') === id || e.getAttribute('data-b') === id;
+      e.classList.toggle('on', on);
+      if (on && !e.classList.contains('off')) lines.push('<div class="card" style="margin:4px 0;background:#f6f8fa">' + e.innerHTML + '</div>');
+    }
+    var adj = document.getElementById('adj');
+    adj.innerHTML = lines.length ? lines.join('') : '<div class="anno">该节点暂无可见关系（不会有凭空的边；若相关类型被图例隐去，点回图例即可恢复）。</div>';
+  }
+  // 类型开关：图例增删——隐去该类型节点与相关边
+  function flipType(ty) {
+    var on = document.getElementById('ty-' + ty).classList.toggle('on');
+    var nodes = document.querySelectorAll('[data-type="' + ty + '"]');
+    for (var i = 0; i < nodes.length; i++) nodes[i].classList.toggle('off', !on);
+    var edges = document.querySelectorAll('#edges .edge');
+    for (var j = 0; j < edges.length; j++) {
+      var e = edges[j];
+      var a = document.querySelector('[data-node="' + e.getAttribute('data-a') + '"]');
+      var b = document.querySelector('[data-node="' + e.getAttribute('data-b') + '"]');
+      var hide = a.classList.contains('off') || b.classList.contains('off');
+      e.classList.toggle('off', hide);
+    }
+    refreshAdj();
+  }
+  // 当前选中节点：边被类型开关隐去后，相邻面板同步
+  function refreshAdj() {
+    var sel = document.querySelector('#graph-nodes .node.done');
+    if (sel) pickNode(sel);
+  }
+  function askEffect() {
+    document.getElementById('effect-ans').style.display = '';
+    var n6 = document.querySelector('[data-node="N-06"]');
+    pickNode(n6);
+  }
+  function fakeSave(id) { document.getElementById(id).style.display = ''; }
+  pickNode(document.querySelector('[data-node="N-06"]'));
+</script>
+<script src="assets/wire.js"></script>
+</body></html>
