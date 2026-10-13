@@ -2,6 +2,8 @@
 
 > 面向油田生产场景的智能问数 / 问答 / 问智平台，从业务设定、PRD、接口契约、架构决策到可交互原型的完整设计稿。设计过程中使用 AI 辅助完成技术调研与原型验证。
 
+![PRD](https://img.shields.io/badge/PRD-F1–F62_·_D1–D9-0EA5E9) ![接口契约](https://img.shields.io/badge/接口契约-24_册-8B5CF6) ![走查断言](https://img.shields.io/badge/走查断言-201_条-16A34A) ![设计稿](https://img.shields.io/badge/模块设计稿-79_篇-3776AB) ![ADR](https://img.shields.io/badge/ADR-8_篇-F59E0B)
+
 ## 项目地图（同一项目的各部分 GitHub 仓）
 
 本项目按「设计真源 → 平台实现 → 数据面 → 合成数据」分仓协作，各仓独立 git，GitHub 平级发布：
@@ -15,7 +17,7 @@
 
 ## 这个项目是什么
 
-一份**系统架构设计项目**：以渤海油田分公司（3 作业区、120 口在产井）技术团队的真实工作流为场景，设计一个由三个专职 Agent（问答 / 问数 / 问智）+ 统一 AI 网关承载的自然语言平台，跑在国产化环境（麒麟 OS + 金仓数据库 + SM3/SM4 国密）上。交付物覆盖从需求到设计的全链路：
+一份**系统架构设计项目**：以渤海油田分公司（3 作业区、120 口在产井）技术团队的真实工作流为场景，设计一个由三个专职 Agent（问答 / 问数 / 问智）+ 统一 AI 网关承载的自然语言平台。交付物覆盖从需求到设计的全链路：
 
 - **PRD**（`docs/prd.md` F1–F62 + `docs/prd-data-plane.md` D1–D9）：功能点、双向对账表、技术栈认领对账、三档规模（边缘 / 平台 / 集团）的取舍、变更记录。
 - **接口契约**（`specs/api/` 24 册）：A/B/C/D/E/F 六大功能面 + 系统级与模块划分、数据库层——逐端点写请求/响应形状、错误码、行为规则与合同常量，是前后端与数据面的唯一接口真源。
@@ -25,15 +27,61 @@
 - **架构视图**（`docs/architecture-v1.md`、`docs/architecture-data-plane-v1.md`、`diagrams/petro-agent.html`）：架构图与可拖拽缩放的节点大图，每张防护清单都写明"防什么错"。
 - **业务设定书**（`docs/business-setting.md`）：组织 / 8 表字典 / 15 指标卡 / 20 质量规则 / Ontology-Glossary-Playbook 草案 / 事故簿——所有设计决策的业务地基。
 - **前端原型**（`prototype/`）：可交互线框（Vite + React + antd5），覆盖 PRD 全部功能面，每页带契约溯源。
-- **技术调研**（`docs/tech-stack/` 19 分册 + `docs/research/`）：官方文档级调研笔记（LangGraph / LiteLLM / 湖仓 / 语义层 / 国产化栈等）与专项调研，设计决策的出处。
+- **技术调研**（`docs/tech-stack/` 19 分册 + `docs/research/`）：官方文档级调研笔记（LangGraph / LiteLLM / 湖仓 / 语义层等）与专项调研，设计决策的出处。
 - **路线图**（`docs/roadmap.md`）：阶段划分与验收基线。
 - **对外协议名片**（`agent-card.html`）：A2A AgentCard 静态页，平台以 MCP 形态暴露 Tools / Elicitation / Tasks 三映射。
 
 **诚实声明**：组织、人名、事故簿为虚构设定；数据形状 / 指标公式 / 治理做法取自公开论文与行业调研（逐条注源）。本仓库以设计文档、接口契约与原型为交付物，不含生产代码。
 
-## 假想业务一句话
+## 功能架构
 
-技术团队用自然语言问平台三件事——**问报告**（"N-2 井的完井方式是什么"，RAG 管道）、**问数据**（"上个月产量最高的三口井"，Text2SQL 状态机）、**要成品**（"做成 PPT 配张示意图再出段语音"，问智 worker）；设计又在语义层治理（四域资产 + 五级 CI）与本体交互层（Palantir AgentOS 五层）上扩展。
+```mermaid
+flowchart TB
+    user["技术团队（自然语言提问）"] --> gw["统一 AI 网关"]
+    gw --> a1["问答 Agent<br/>RAG 管道·回答带原文出处"]
+    gw --> a2["问数 Agent<br/>Text2SQL 状态机·口径可交代"]
+    gw --> a3["问智 Agent<br/>成品加工 worker"]
+    a1 --> sem["语义层治理<br/>四域资产 + 五级 CI"]
+    a2 --> sem
+    sem --> dp["数据面<br/>进料→清洗→出汇总→质检→报水位"]
+    a3 --> out["汇报成品<br/>PPT / 图表 / 语音"]
+```
+
+三个专职 Agent 由统一 AI 网关承载；问答与问数的每一步都要过语义层治理（四域资产 + 五级 CI，口径统一与质量闸），底层由数据面持续供给经过质检的数据；设计又在语义层治理与本体交互层（Palantir AgentOS 五层）上扩展。
+
+## 文件架构
+
+```
+teach-petro-agent-public/
+├── docs/                 # 设计文档主体
+│   ├── prd.md            #   PRD：F1–F62，双向对账表 + 技术栈认领对账 + 三档规模取舍
+│   ├── prd-data-plane.md #   数据面 PRD：D1–D9
+│   ├── business-setting.md  # 业务设定书：组织 / 8 表字典 / 15 指标卡 / 20 质量规则 / 事故簿
+│   ├── adr/              #   架构决策记录 8 篇（统一入口决策链 / 真实开发技术选型 / 双轨验收基线…）
+│   ├── architecture-v1.md · architecture-data-plane-v1.md   # 平台与数据面架构视图
+│   ├── roadmap.md        #   阶段划分与验收基线
+│   ├── tech-stack/（19 分册）· research/   # 技术栈调研与专项调研笔记
+├── specs/                # 契约层
+│   ├── api/              #   接口契约 24 册：逐端点请求/响应/错误码/合同常量（接口唯一真源）
+│   ├── modules.md · walkthroughs.md         # 28 模块卡 / 201 条走查断言
+│   └── data-plane/ · walkthroughs-data-plane.md   # 数据面 dp1–dp9 卡与 35 条断言
+├── design/               # 79 篇模块设计稿（00–76 + DP1–DP9）：伪代码级主干/时序/走查/取舍
+├── diagrams/             # petro-agent.html 架构大图（双击直开，可拖拽缩放）
+├── prototype/            # 前端原型：静态线框页 + React 构建版（prototype/app/dist/index.html 双击直开）
+├── agent-card.html       # A2A AgentCard 名片静态页（MCP 形态：Tools / Elicitation / Tasks 三映射）
+└── CONTEXT.md            # 术语表
+```
+
+## 技术选型（设计裁决的技术栈，经 19 分册调研背书）
+
+| 设计域 | 选型 | 落点 |
+|---|---|---|
+| Agent 编排 | LangGraph | `docs/tech-stack/` 调研背书，问答/问数链路的编排基座 |
+| 模型接入 | LiteLLM（统一网关） | 多供应商适配，主备模型别名路由 |
+| 数据面 | 湖仓分层（进料→清洗→汇总→质检→报水位） | `docs/prd-data-plane.md` + `architecture-data-plane-v1.md`，实装见 [tpa-data-plane](https://github.com/zzwcoding/tpa-data-plane) |
+| 语义层治理 | 四域资产 + 五级 CI | `docs/business-setting.md` Ontology-Glossary-Playbook 草案 |
+| 本体交互层 | Palantir AgentOS 五层映射 | PRD 扩展篇 |
+| 原型实现 | Vite + React + antd5 | `prototype/`（每页带契约溯源） |
 
 ## 仓库地图
 
