@@ -2,6 +2,18 @@
 
 > 面向油田生产场景的智能问数 / 问答 / 问智平台，从业务设定、PRD、模块设计到可交互原型的完整设计稿。设计过程中使用 AI 辅助完成技术调研与前端原型验证。
 
+## 项目地图（同一项目的各部分 GitHub 仓）
+
+本项目按「设计真源 → 平台实现 → 数据面 → 合成数据」分仓协作，各仓独立 git，GitHub 平级发布：
+
+| 仓库 | 角色 | 可见性 |
+|---|---|---|
+| [petro-agent-platform](https://github.com/zzwcoding/petro-agent-platform) | 平台实现仓：后端 `app/`＋`appv2/` · 前端 `web/` · 本体 `ontology/`（已并入） | 公开 |
+| [teach-petro-agent](https://github.com/zzwcoding/teach-petro-agent) | 设计/教学真源仓：合同册 · ADR · 业务设定 · 场景课 | 私有 |
+| **本仓** [teach-petro-agent-public](https://github.com/zzwcoding/teach-petro-agent-public) | 教学仓公开向副本（架构设计项目形态） | 私有 |
+| [tpa-data-plane](https://github.com/zzwcoding/tpa-data-plane) | 数据面仓：独立数据服务（进料→清洗→出汇总→质检→报水位） | 私有 |
+| [fieldforge](https://github.com/zzwcoding/fieldforge) | 油气领域合成数据生成工作台 | 公开 |
+
 ## 这个项目是什么
 
 一份**系统架构设计项目**（design repo）：以渤海油田分公司（3 作业区、120 口在产井）技术团队的真实工作流为场景，设计一个由三个专职 Agent（问答 / 问数 / 问智）+ 统一 AI 网关承载的自然语言平台，跑在国产化环境（麒麟 OS + 金仓数据库 + SM3/SM4 国密）上。交付物覆盖从需求到设计的全链路：
