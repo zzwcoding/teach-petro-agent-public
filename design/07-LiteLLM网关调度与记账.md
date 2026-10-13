@@ -5,6 +5,8 @@
 > **边界声明**：本设计稿只在 `m2` 范围；对 `m3`/`m4`/`m12` 全部为**使用公开接口**——`Repository.save_audit`（设计稿 04）、`Cache.incr` 与日计数键形状（设计稿 02）、`Metrics.record_*`/`over_budget` 与 `Clock`（设计稿 06），零内部 import、零接口修改。业务调用方接线（设计稿 09/10/14/17/20）一律以"调用方（后续设计稿接线）"占位。
 > **明确不讲的**（设计范围声明）：各业务 Agent 的调用方接线（设计稿 09/10/14/17 各自兑现）；LiteLLM Virtual Keys/Admin UI 等企业功能细化（litellm.md：需 Postgres 且企业版）；模型微调与自建推理服务（设计范围"不做什么"）。
 
+> **前端展示位注记**（2026-09-27）：成本熔断（单次 0.05 元＋累计 GATEWAY_BUDGET；熔断=改路由不拒绝——别名整体改降级组 petro-lite、在途照跑完、熔断位进程内单向不自动恢复）与故障切换留痕三处（审计行 served_model/attempted_fallbacks＋Fallback 结构化日志＋账本备注）在原型 D5/D1 页有对应展示（A2 / B2.3 / F2/F29 改注）。
+
 ## 实现清单
 
 - [x] 主模型健康时一次问答生成：流式走网关统一入口、别名路由正确；响应中的网关调用号被记录进调用记录（源：W-F2-1）✅ **主干一**（AsyncOpenAI `base_url` 统一入口、`model="petro-llm"` 别名、POST /v1/chat/completions 流式应答）+ **主干二**（响应头 `x-litellm-call-id` 落审计行）

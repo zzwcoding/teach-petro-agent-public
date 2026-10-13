@@ -4,6 +4,7 @@
 > 函数主干（伪代码体）不落在本文件，由各模块的实现走查文档承载。接口变更只能改模块卡，走查断言（walkthroughs）只引用。
 > 模块编号沿用旧版 M1–M12；本次按深模块准则补三卡：`m13` Agent 运行时、`m14` 索引存储、`m15` 问智 worker（旧版散落在"增补节"，现为正式卡）。
 > **2026-09-14 前沿对齐升级增补四卡**：`m16` 语义层与指标注册、`m17` 执行前校验链、`m18` 评估证据链、`m19` 注入防御层（PRD 增补节 F13–F16；走查断言 §F13–§F16）。
+> **2026-09-26 统一入口增补）**：`m13` 扩展（D1 字面安检 / 执行链注册表闭世界枚举 17 链 / 澄清反问链收口；dispatch 输入改注 D2 结构化裁决产出）、新卡 `m28` 知识装配层；边界规则增 3 行（方案 docs/adr/0002；变更请求 docs/change-requests/2026-09-26-a1-routing-redesign.md CR-2/CR-3；W 断言归设计稿 76）。
 
 ## 底座 m1
 
@@ -54,6 +55,9 @@ Gateway.embed(texts) -> Vectors              # POST /v1/embeddings，Embedding �
 record_spend(call_id, usage, latency) -> None# 写 Redis 用量计数（m4）+ Postgres 审计表（m3）
 # 配置契约（app/gateway/config.yaml）：model_list（Petro-72B 主+DeepSeek 备）、fallbacks、
 # num_retries（router 层，SDK max_retries 置 0）、allowed_fails+cooldown_time、request_timeout
+# 成本熔断与延迟面板F2/F29 改注）：双阈值=单次 0.05 元+累计 GATEWAY_BUDGET（元/月）——熔断=改路由不拒绝：
+#   别名整体改降级组 petro-lite、在途照跑完，熔断位进程生命周期内单向置位不自动恢复；p50/p95 按模型别名分桶，
+#   各记最近 500 个成功样本滑动窗口（精确排序算分位，非直方图）——前端展示位 D1/D5
 ```
 
 ### 依赖
@@ -157,6 +161,9 @@ Storage.get_stream(bucket, key) -> stream                      # get_object；�
 Storage.presigned_url(bucket, key, method, ttl) -> URL         # presigned_put/get_object（GET 默认上限 7 天）
 Storage.fetch_and_rearchive(url, bucket) -> key                # 🛡️ 转存义务：24h 临时 URL 下载转存
 # 桶契约：reports（原始报告）/ artifacts（生成产物）
+# 大结果预览协议与落盘顺序闸F27 改注）：预览=5 行+列名表头+总行数声明（共 31,390 行）+数值列 min/max/均值摘要
+#   （约 600 token）+句柄四字段（artifact_id/GET 预签名 URL/总行数/expires_at）；顺序闸=落桶→落库→签 URL，三步走完句柄才出门；
+#   TTL 口径统一 GET 预签名小时级有效、上限 7 天——前端展示位 A1/F1
 ```
 
 ### 依赖
@@ -283,10 +290,18 @@ Executor.call(tool_call, user) -> ToolResult
 # 内置示例工具（builtin/）：query_production_db（只读查生产库，走 m3）/
 # navigate_page（返回前端路由指令）/ invoke_api（调外部系统）
 # 沙箱执行模式（v3.1 扩容）：Executor.call_sandboxed(tool_call, user, limits)——受限容器伪代码
+# 错误三分法前端卡）：参数错带"错在哪+期望形状+重试指引"／权限拒不带任何指引只转述理由／下游错带
+#   "副作用未确认，先查询再重试"——前端展示位 A1；沙箱三闸细化F57）：读入行数 50,000 行/容器内存 512MB/
+#   墙钟 60 秒，拦停出 sandbox_denied 三字段（gate/trigger/disposal），on_reject 降级估算或留白；沙箱模式不对 MCP 协议侧开放——前端展示位 D3
 #   （只读断言/资源限额/超时，fail-closed）；大结果落 artifact（m5 预签名下载），上下文只收 5 行预览+句柄
 # 协议化暴露（v3.1 扩容，概念演绎）：app/agents/tools/mcp_server.py——既有工具经 MCP
 #   Tools/Elicitation/Tasks 三映射暴露；只包装 m8 注册工具，外部调用同过 Permission 闸（协议层不加权）；
 #   A2A AgentCard 样例为文本交付物
+# （2026-09-28；细节真源在 §二 B2）——
+# Action 合同汇入的生效落点：ActionContractCompiler 五查（四要素齐全/动作白名单+权限矩阵一致/前置可判定/
+#   副作用有回执登记位/风险档配置化）→ ActionSandbox.dry_run 三断言（Writeback 只落独立变更区——SQL AST 目标表拦截/
+#   审计四要素齐/双闸前置真跑）→ C3 加权（L3/L4 权限敏感）→ Registry.register + Permission 矩阵联动刷新 → 双闸生效
+# 下线注记（2026-09-28）——Action 合同治理链下线备查；Registry/Permission/Executor/沙箱执行（call_sandboxed）运行时机制不变
 ```
 
 ### 依赖
@@ -314,8 +329,7 @@ Executor.call(tool_call, user) -> ToolResult
 ```text
 identify_lithology(well_id, depth_range) -> LithologyResult
     # XGBoost 测井岩性（FORCE 2020 复现方案）；返回压缩结论+关键数值，原始曲线不进上下文
-forecast_production(well_id, days) -> ForecastResult   # LSTM 产量预测；只读角色可用
-register_all(registry) -> None       # 启动装配（m1 create_app 调）：批量注册并声明权限级别
+forecast_production(well_id, days) -> ForecastResult   # LSTM 产量预测；对生产数据只读角色可用（口径：只读=生产数据零写入口，Owner 2026-09-27 拍板——老王/小李/主任符合）
 ```
 
 ### 依赖
@@ -414,6 +428,8 @@ Metrics.record_ttft(model_alias, ms) / Metrics.record_latency / Metrics.record_c
 Metrics.over_budget?(budget) -> bool         # 成本熔断判据（m2 降级切换用）
 # 可观测标准化（v3.2 扩容）：otel_map.py:to_otel_attrs(span_attrs) -> gen_ai.* 属性族
 #   —— m12 span 属性按 OTel GenAI 语义约定映射出门，不丢不造（平台特有属性显式标注）；Langfuse 形态文档交付
+# 三记录点与切换留痕F29 改注）：TTFT/总延迟/逐调用成本；故障切换留痕三处=审计行 served_model 与
+#   attempted_fallbacks 注记 + Fallback 结构化日志（时间/别名/失败部署/切换目标）+ 账本备注——前端展示位 D5
 ```
 
 ### 依赖
@@ -449,10 +465,25 @@ run_text2sql(message, user, thread_id) -> 事件帧序列
 enqueue_wenzhi(job) -> msg_id     # m4.TaskQueue.enqueue 后立即返回受理帧（运行时不等 worker）
 layout_messages(system, history, tools, dynamic) -> messages
     # KV Cache 友好装配（F12 三铁律：系统提示词+工具定义冻结、动态信息只追加末尾、标准 API 格式）
+    # 冻结与压缩展示口径F59）：冻结段字节级冻结——循环内只追加不重装、对 tools 零排序零改名
+    #   （冻结头约 3,800 token，占首轮 4,400 绝大头）；长会话压缩阈值 used > window_tokens × 0.8（留两成余量），
+    #   摘要替换非截断（role:"tool" 批量摘要、tool_call_id 原位替换），压缩失败原封不动无半成品——前端展示位 D6
+# —— 统一入口扩展（2026-09-26；ADR-0002）——
+# 改注：dispatch 的 agent_type 不再是客户端入参——统一入口下为 D2 结构化裁决产出
+#   （{chain, slots(本体ID), confidence, need_clarify}）；对外兼容入参形态保留，内部以 D2 裁决为准
+entry_screen(message, user) -> pass | 拦截(终局)
+    # D1 统一安检（确定性字面规则，零理解成本）：注入扫描 / 禁用词 0 号位（先于一切解析）/ 身份认证与数据域解析；
+    # 外发判定不属 D1（"想外发"是意图，判定归 D2；闸位仍在 m8 执行前 + m19）
+ChainRegistry.entries() -> [chain]
+    # 执行链注册表：闭世界枚举 17 链（22 路径含复用）——模型只能选注册表内链，链内闸门由代码值守
+clarify_frame(message, d2_verdict) -> interrupt 帧
+    # 澄清反问链：一词两译/缺参澄清帧，跨链通用 interrupt（挂起→回 D2 重判）；ambig 场景不进 m7
 ```
 
-### 依赖
+> **两段式装配分工，体检 §三）**：D2 前轻装配走 `m28`（路由裁决输入，复用 `m21` Anchor 等公开面）；判到问数链后链内瀑布全量装配仍走 `m21` 单出口 `Waterfall.retrieve`（Seam 不动）——同一问句不装配两次。`m28` 只产装配内容，装配形状与 KV Cache 三铁律仍归本卡 `layout_messages`；页面上下文注入归 `m26.ContextLayer`。
 
+### 依赖
+- 模块: `m2`（循环内 LLM 调用）、`m3`（会话轮落库/上下文回源）、`m4`（事件缓冲、任务队列、cache-aside）、`m6`（qa 管道）、`m7`（问数图）、`m8`（工具执行）、`m12`（span 打点）、`m19`（装配打标与措辞裁决，设计稿 25 接线）、`m28`（统一入口知识装配接线）
 - 模块: `m2`（循环内 LLM 调用）、`m3`（会话轮落库/上下文回源）、`m4`（事件缓冲、任务队列、cache-aside）、`m6`（qa 管道）、`m7`（问数图）、`m8`（工具执行）、`m12`（span 打点）、`m19`（装配打标与措辞裁决）
 - 外部: 无直接外部（外部依赖全部经下游模块的 Adapter 隔离）——Adapter: **EchoAgent**（固定事件帧序列；骨架期 stub，后续逐链路换真身）
 
@@ -465,6 +496,8 @@ layout_messages(system, history, tools, dynamic) -> messages
 ### 参考锚点
 
 - K-A/K-E/K-H：stream_events 桥接（LangGraph）；book/chapter2.md §Agent如何调用大模型、§KV Cache友好的上下文设计、§提示工程；book/chapter1.md §编排模式（工作流 vs 自主）。
+
+**执行链落点注记，2026-09-26 体检结论；注记行不改他卡）**：状态机六站→`m7`；指标卡直出→`m16.template_for`；FAQ/检索→`m6`；工具→`m8`；剧本→`m16`+`m7` 子图；汇报→`m13`+`m15`；大结果→`m8` 沙箱+`m5`；Action 合同链→`m26`（F47 双闸合同，非 `m7`）；图谱问答链→`m25` 三接入点 C 段（W-F55-3 既有合同）；外发拦截链→`m19.assert_outbound`（判定归 D2，闸位仍在 `m8` 执行前）；口径消歧→`m16.Resolver`；新鲜度/行级→`m17` 两段；上下文注入→`m26.ContextLayer`；统一安检链→本卡 D1 扩展；澄清反问链→本卡 `clarify_frame`。
 
 ## 索引存储 m14
 
@@ -562,6 +595,17 @@ PlaybookRegistry.match_intent(intent) -> PlaybookDef | None
     # 步骤工具枚举 v3.1 补记：装载闸紧枚举增"沙箱查库"
 OssieExport.dump() -> ossie_yaml                  # 语义资产 → Apache Ossie 格式（Dataset/Metric/Relationship/extensions）
 # 冷启动共识：AI 只产候选草稿，冲突检测后必须 Owner 审批才入权威域（三域同规）
+# 术语有效期与建议池规则F60 改注）：术语到期机器判、只打漂移标注照答（"有效期已届满，定义待 Owner 复核"），
+#   废弃人判，硬切换走审批改文件版本加一；建议池优先级=影响对象数 × 2 + 频次 × 0.5 + owner 缺位 + 1（≥ 6 分=P0），
+#   置信度金标 fail 档 0.95/线上未命中封顶 0.70，晋升闸=独立会话数 ≥ 2 或簇频次过阈值——前端展示位 C1/C2
+# —— 版本 7 收口；页面＝C1 四本账）——
+PlaybookRegistry.bind_account(playbook_id, account) -> None
+    # 工作流账号绑定两态：登记=已绑定运行账号、可被调用 / 草案=账号未绑定、不可用（《产量下滑归因》·账号产量分析为样板）；
+    # 登记卡七项（开工条件/步骤/缺参策略/人工确认点/输出合同/来源/负责人·状态·版本，缺项如实标"未登记"）；
+    # 触发三路=人工指令承接 / 监控数据表触发（表间矛盾）/ 周期回放（体检、周报）；
+    # 工作流是数据面变动单的提出人（登记卡回链 m17/A3，见 F47 版本 7）
+# 台账同源纪律）：C1 命名导出（TERMS/METRICS/ENTITY_GROUPS/WORKFLOWS/ACTIONS）是 C2 处方段与 E1 考题槽位的唯一选项来源，
+#   语义资产权威源唯一在台账，禁止下游各留拷贝——前端展示位 C1/C2/E1
 ```
 
 ### 依赖
@@ -597,6 +641,16 @@ PolicyStage.inject_filters(sql, user) -> sql'      # 行列权限 mandatory filt
 FreshnessStage.check(tables) -> fresh | stale(batch_ts) | unknown   # m3 批次水位；unknown 跳过并标注
 LineageStage.annotate(metric_ref, tables) -> Explanation  # 指标名+版本+来源表+过滤条件解释链
 AuditStage.log(verdict, user) -> None              # 经 m12 span + m3 审计落痕
+# LIMIT 收口与外表审批F14 改注）：LIMIT 没写补默认 50 行、超 200 截到 200、只封顶不抬底
+#   （与工具 schema maximum=200 同源）；人工审批 interrupt 唯一触发=SQL 引用选表命中集之外的外表
+#   （批准续跑/驳回权限拒答零重试），DELETE/无 LIMIT 是无条件硬拦、不设审批——前端展示位 A1 第 23 场景
+# —— 数据变动审批合同版本 7 收口；页面＝A3，PRD F47）——
+# 变动单（四前缀：#WB 井务/#MS 措施作业/#CFG 平台配置/#ACC 权限）三面模型：数据面/配置面/语义面——参数/数据/权限变更走 A3，
+#   语义面修订不走本页转 m18.SuggestionPool/C2（语义面权限申请驳回转角色权限流程）；
+# 提出人=工作流&账号（工作流绑定运行账号后成为数据面预制处理流程的提出人，账号直提为补充）；
+# 状态四态=待审批/已执行（含低风险自动执行留痕）/已驳回（须写理由）/已撤回（提出方主动撤回，重复单合并重报）；
+# 详情合同按面组织（"项"全状态可见：配置面=当前值→建议值/影响范围/回滚方式；状态降级为底部一行处理信息）；
+# 变动单按实体回链 A2"变动"页签——前端展示位 A3/A2
 ```
 
 ### 依赖
@@ -639,6 +693,40 @@ SuggestionPool.submit(source, evidence) -> suggestion_id
 MrFlow.propose_mr(diff, submitter) -> mr_id / approve_mr(mr_id, reviewer) -> release
     # 🛡️ Agent 只提 MR 四红线：不直接改主干/只提 MR 不自行合并/不手改派生物/高影响变更人工审批；
     # 合并 = SemanticCI 全绿 + Owner 审批 → 版本发布可回滚
+# —— 答题考核面版本 7 收口；页面＝E1 三页签，PRD F15）——
+ExamBank: 考题槽位化（指标/实体分组/术语/必中要点/数值容差/禁项/关联工作流七类槽，选项与 m16 台账同源）
+    # 金标=期望值表（每挂一个指标槽一行，单位·粒度自动带出，逐项人工核算；AI 只出题干与扩写变体、不碰期望值；散文仅备注）；
+    # 考题带新增/更新时间戳；扩写变体独立管理、期望值共享同一份金标
+RunTask: 跑题任务化（筛选+多选发起 → 任务记录：任务号/发起角色/题数/评分/登记数，逐题回看 Drawer）
+    # 失败题按失败槽拆提案进 SuggestionPool（source=考核）；两套判分边界：ResultGrader 行集比对（评问数链执行结果）
+    # ≠ 答题考核逐槽比对金标期望值（评平台答问）
+    # （2026-09-28，PRD F15 ⑥⑦）——
+    # 判分产出按槽结构化：数值槽（容差比对）/要点（逐条命中）/禁项（命中即错）/锚点（版本一致）→ 挂槽+要点差集可视化
+    # 变体×判稳联动：StabilityRunner"同问 N 法×M 次"页面落位——重跑按该题扩写变体轮换问法，全过记稳、有错记不稳并标第几次
+    # 修订（2026-09-28，PRD F15 ⑧/F20）——
+    # 「用例导出」撤销并入本卡：任务管理台"固化为基准"=单一当前基准（新固化替换/旧任务留痕/可取消，取消后 C3 显示"无基准"）
+    # C3 第五道检查=逐题逐槽比对当前基准（基准判对的题重跑仍须判对；不比评分；金标/容差用封存那套；
+    # 基准时就错的题不拦、对了算改善；稳定性降档仅警告）；门禁默认固化全量题库+负样本（L5 口径），子集固化=定向验证
+    # （2026-09-28，PRD F15 ⑨⑩⑪）——
+    # 判分(x)与评分(三维)分工不换算：代码判数值/要点/禁项/锚点指针；LLM-as-judge 判忠实度/相关度/出处准度语义部分
+    # （锚点槽⊂出处准度：指针代码判、语义支持度裁判判）；交叉校验：判对+忠实度低→抽检 warning；判错+三维高→复核金标 warning
+    # 评分快照落 m3：分+理由+裁判模型+评分提示词版本+输入快照（可复现/裁判换版可比对）
+    # 三维评分三场景：门禁不用／生产哨兵（低分进 SuggestionPool runtime 源）／模型对比主判据（同题同金标同裁判、比正确率+稳定性+三维分）
+    # 跑题任务带模型配置：答题 LLM+裁判 LLM（选项=LiteLLM 网关别名，与 D1 模型线路页同源）存入任务记录并详情展示；
+    # 同配置才谈降级——与基准答题/裁判配置任一不同=模型对比，不触发 C3 降级判定（C3 显式提示配置差异）
+    # （2026-09-28，PRD F24 ⑨；细节真源在）——
+    # Verify 站（闭环收口）：定义族=关联金标考题重跑(E1)+体检复扫(E3)，失败=台账版本回滚+新提案；
+    # 行为族=关联考题重跑+灰度观测窗信号比对+沙箱报告复核，失败=子图/注册表版本回退(自动回滚)+新提案(source=考核)
+    # 提案反馈环分工铁律：LLM 只归一(理解语义)与起草(产结构化 diff)；代码管校验(编译器/沙箱/CI)/生效(汇入合同)/审计/回归
+    # 体检触发三路（补空白）：周期全量(主)/人工立即(E3 按钮)/变更增量(单据生效事件)
+    # 下线注记（2026-09-28）——行为族两目标退出提案池治理；B1/B2/沙箱 dry-run/灰度回退标记下线备查；
+    # 运行时受控写入（propose/execute 双闸）保留不变；Verify 站/触发三路对三类定义族目标继续生效
+# —— 提案统一模式版本 7 收口；页面＝C2 语义修订提案池，PRD F24）——
+# SuggestionPool 收口补全：目标五类（业务术语/指标口径/对象与关系/分析工作流/Action 合同）+ 来源×去向准入矩阵
+#   （✓收/△转分诊/✗拒收指路，进池闸校验）+ 证据形态四级（L1 结构差集/L2 条款引用/L3 运行信号/L4 症状——L4 必先分诊）
+#   + 状态机五态（待分诊/待审/已过安检/已生效/已驳回）+ 结构化改写（处方三槽位，对象选项与 m16 台账同源）与驳回附理由
+#   + 汇入合同两族（定义族=台账行版本 +1；行为族=工作流编译进子图注册表/Action 合同 m8 注册+双闸）
+#   + 体检发现归一诊断 schema（来源/对象坐标/现象/证据/证据形态/去向——前端展示位 E3）
 ```
 
 ### 依赖
@@ -731,6 +819,11 @@ TransformTest.suite(layer) -> [check]           # 唯一性/非空/引用完整/
 Waterfall.retrieve(question, user, budget) -> SemanticContext
     # S0 固定边界→S1 显式锚定→S2 对象装配→S3 确定性→S4 混合召回→S6 资格与歧义→S7 回读权威源；
     # 逐级升级可早停；S5 受限图扩展只作概念演绎
+    # 瀑布完整分级展示F58）：S0 身份四要素（一次落定后续只读）→S1 显式锚定（命中只停检索级，装配/资格审/
+    #   权威回读照走）→S2 轻装配（只装配不裁决）→S3 词表四级（禁用词 0 号位→术语精确→同义词倒排→模糊层 Jaccard≥0.75）
+    #   →S4 双路召回各 top5、RRF 融合、不设相似度阈值早停→S5 图扩展协议段有编制未实装、trace 记直通→S6 资格裁决
+    #   （多候选/缺参→澄清帧，候选上限 4 支、"另有 N 支未列出"）→S7 权威源回读（验 status=approved+版本与 S0 快照一致，
+    #   编号敲错拦"不在现行指标目录，不代答"）——前端展示位 D2；原则：便宜的确定性先花、昂贵的相似度后花
 Anchor.parse(text) -> ExplicitAnchor | None       # "@metric 产量完成率"式显式锚定语法（S1）
 TypedState.assemble(stage, payload) -> 五段强类型  # IntentSpec/SemanticContext/SemanticPlan/ExecutionPlan/EvidencePack
     # "模型提出计划，协议决定执行"：SemanticPlan 违反本体约束即失败关闭
@@ -740,6 +833,8 @@ TypedState.assemble(stage, payload) -> 五段强类型  # IntentSpec/SemanticCon
 
 - 模块: `m16`（三域权威源与回读）、`m14`（S4 混合召回复用既有索引）、`m20`（marts 模型物引用闭包）
 - 外部: LangGraph（TypedDict/StateGraph 形状）——Adapter: **FakeWaterfall**（固定 S 级命中轨迹）
+- **子图注册/灰度注记，2026-09-28；细节真源在 §二 B1）**：工作流汇入合同 B1 的生效落点——FlowCompiler 五查（工具白名单/七项登记卡闭合/账号绑定态/触发枚举/输出合同）产出子图节点包；注册表版本+1＋灰度切流（金丝雀比例+观测窗）；失败＝版本回退（自动回滚）。沙箱 dry-run 的 replay 集＝关联考题金标（反馈行=LLM 合成用例，验证强度降级→C3 权重升/灰度比例降）。
+- ** 下线注记（2026-09-28）**：上述注册/灰度/回退链随行为族治理整体下线备查——本卡运行时（瀑布/五段强类型）不受影响。
 
 ### Seam 与走查计划
 
@@ -873,6 +968,7 @@ GraphRecall.parallel_merge(query, hits, subgraph) -> Context  # 与向量/BM25 �
 - Seam: 图谱只经 m22 扇出生产、只经 GraphRecall 公开面消费；问答链不知图存储内部（换 Neo4j 不动管道）。
 - Adapter: FakeGraphStore。
 - 走查计划: 锁死 W-F40-1..5、W-F55-1..3（三接入点）。
+- **执行链注记，2026-09-26）**：三接入点 C 查询段承接「图谱问答链」执行链（链名与 prototype/V2-page-spec.md 附录 17 链清单逐字一致）——查询段瀑布先行（m21 前哨），精确入图/@锚定直达图邻域；类型闸执法：拿不准宁可跳过、不创造新类型；逐级追溯后必带图谱出处；面外拒答（源：W-F55-3、设计稿 69）。
 
 ### 参考锚点
 
@@ -906,6 +1002,7 @@ Governance.matrix(user) -> CapabilitySet             # 角色×五层权限矩�
 - Seam: "本体消费面"接缝——ContextPack/ResultSet/StructuredResult/Proposal/Writeback 五形状是唯一契约，本体来自 m24 还是 m25 消费方无感（双引擎可选的落点）；Action 执行必过 m8 权限闸+m17 校验链（边界规则新增条）。
 - Adapter: FakeAgentOS。
 - 走查计划: 锁死 W-F43-×（总纲对号入座）、W-F44-×（Context）、W-F45-×（Query）、W-F46-×（Logic）、W-F47-×（Action）、W-F48-×（Governance）、W-F49-×（双通道）。
+- **执行链注记，2026-09-26）**：Action 层承接「Action 合同链」执行链（链名与 prototype/V2-page-spec.md 附录 17 链清单逐字一致；消费 D2 意图=写操作出口）——四要素核验（参数/规则/前置条件/副作用，源：设定书 §7/A3 页口径）→影响测算（ActionTool.propose 只读摆给人看）→interrupt 人工审批（W-F7-6 同款机制，走 m13 既有面）→变更记录区 append-only 可回滚（Writeback 不污染源）；m8 权限闸+m17 校验链双闸前置不变。
 
 ### 参考锚点
 
@@ -941,6 +1038,41 @@ Revisions.rollback(page_id, rev) -> None             # 回滚也是一次 commit
 
 - 参考实现对照：reconstructContent 重叠去重/reconstructEnrichedContent 图片回读/maxContentForWiki=32768/wiki_linkify.go/wiki 版本存主库；book/chapter3.md §OpenViking（L0/L1/L2 按需加载+必须建链接）+§知识更新（三层分离/PR 模式）；Wiki 图谱可视化≠GraphRAG 的区分注记。
 
+## 知识装配层 m28
+
+职责: 统一入口的知识装配器——实体锚定（问句→本体 ID）→ 一跳闭包扩展（读 `m24` GraphIndex）→ 装配 D2 输入系统提示词（实体/槽位 + 术语层 + 候选清单 + 执行链闭世界枚举）；候选清单"只装配不裁决"，路由裁决权唯一归 D2。
+目录: `app/assembly/`（assembler.py、anchor.py）
+
+### 公开接口
+
+```text
+assemble(message, role) -> AssembledPrompt
+    # 装配 D2 输入：实体/槽位 + 术语层 + 候选清单（含置信度）+ 执行链闭世界枚举（m13.ChainRegistry）；
+    # 用户 @ 显式倾向在此注入提示词（倾向≠直通：模型仍核验槽位合格性，不齐走澄清帧）
+    # 六路匹配器并行版本 7 收口；原"匹配器（FAQ/指标卡/术语）"三路为 ADR-0002 时点旧口径）：
+    #   术语台账/指标卡台账/FAQ 索引/报告索引/工具清单/分析工作流——并行查表共池；词级扫描全句走完、全部收集；
+    #   澄清帧候选上限 4 支（超截断标"另有 N 支未列出"）；落空信号进 m18.SuggestionPool（治理闭环输入）；
+    #   算法：术语=0号位禁用词→精确→别名倒排一跳→Jaccard≥0.75；指标卡=全等→同义词倒排→Jaccard≥0.75（模糊层只配"待确认"）；
+    #   FAQ/报告=同池 BM25+向量→RRF 按名次融合；工具=角色过滤+关键词碰撞（≤20 预算闸）；工作流=任务级触发意图匹配
+    # @ 面板契约：panel_view(user) 投影（角色过滤+薄合并 PanelItem，现取不建仓永不漂移）；@ 装配三件套=
+    #   倾向行注入+按主键直取（S1 早停配套，取不到=落空拒答）+一跳闭包补邻域；同一 @token 两处消费
+    #   （前门路由侧+链内瀑布 S1）；被 @ 的一路不过匹配器、其他五路照跑（候选在场是"倾向≠直通"的物质基础）
+Anchor.resolve(message) -> AnchorSet               # 实体锚定：问句→本体 ID 集合；显式锚定复用 m21.Anchor.parse 公开面
+```
+
+### 依赖
+
+- 模块: `m2`（装配与 D2 裁决 LLM 调用走网关既有 chat 面）、`m14`（混合召回读公开面）、`m16`（实体/术语/禁用词权威源）、`m21`（Anchor 显式锚定公开面）、`m24`（一跳闭包真源：GraphIndex --closure 公开面裁决）
+- 外部: 无新增——Adapter: **FakeAssembler**（固定 AnchorSet/AssembledPrompt）
+
+### 边界声明
+
+- **只读公开面**（m27 单向投影先例）：不回写 `m14` 索引、不写 `m16` 注册表、不越 `m6⊥m7` 隔离线；不调 `m7` 状态机/`m8` 工具执行——只交付裁决结果，执行归 dispatch 后续。
+- **候选清单"只装配不裁决"**：匹配器（FAQ/指标卡/术语）降级为装配候选，D2 结构化裁决唯一（ADR-0002 推翻"匹配器可作路由裁决"旧假设）。
+- **两段式装配分工**：D2 前轻装配=本卡（路由裁决输入，复用 `m21` Anchor 等公开面）；判到问数链后链内瀑布全量装配=`m21` 单出口 `Waterfall.retrieve`（Seam 不动）——同一问句不装配两次。
+- **一跳闭包真源**：增读 `m24` GraphIndex（--closure）公开面——闭包是图遍历，`m24` 是图索引真源；`m16` 保持实体解析单一职责，不扩闭包函数。
+- **三方分工成文**：本卡产装配内容 / `m13.layout_messages` 管装配形状与 KV Cache 三铁律 / `m26.ContextLayer` 管页面上下文注入（确定性触发不需要 LLM）。
+
 ## 边界规则
 
 | 禁止 | 例外 | 理由 |
@@ -968,6 +1100,10 @@ Revisions.rollback(page_id, rev) -> None             # 回滚也是一次 commit
 | `m26` ActionTool 绕过 `m8` 权限闸或 `m17` 校验链直接执行；Writeback 直写 marts/源表（只许写独立变更记录区） | （无） | 高风险人工确认+不污染源数据是 Action 层的存在理由 |
 | 图谱/Wiki 后处理绕过 `m22` 分发枢纽自行挂接入库管线（扇出唯一出口=PostProcess.dispatch） | （无） | 四开关的降级语义只在枢纽一处成立 |
 | 父块进 `m14` 双索引（INV：父块只入 m3 不索引，命中后由 m6 回捞） | （无） | F30 核心不变量 |
+| —— 统一入口增补（2026-09-26）—— | | |
+| `m28` 写任何索引/注册表，或调 `m7` 状态机/`m8` 工具执行（只读公开面产候选清单；候选"只装配不裁决"，裁决唯一归 D2；只交付裁决结果，执行归 dispatch 后续） | （无） | m27 单向投影先例——防装配层反向污染知识源 |
+| 执行链（含 `m7`）借 `m28` 绕过检索瀑布（执行链只准消费 `m28` 装配输出；问数链全量装配仍走 `m21` 单出口，`m28` 只承担 D2 前轻装配） | （无） | 防 `m6⊥m7` 隔离的立法本意被"经 D2 间接拿到 m6 检索产物"旁路 |
+| D1 入口字面闸与 W-F19-1 语义闸混同（D1=零理解成本字面检查：注入扫描/禁用词 0 号位/身份与数据域，落 `m13`；W-F19-1=链内意图反问语义闸；外发判定不属 D1——判定归 D2，闸位仍在 `m8` 执行前 + `m19.assert_outbound`） | （无） | 双闸分工：字面先拦、语义后判，不可互相替代 |
 
 ## 目录骨架（随模块卡定稿生成）
 
@@ -1122,6 +1258,14 @@ petro-agent/
         ├── linkify.py                   # 交叉链接+入口页
         └── revisions.py                 # 版本历史+一键回滚
 ```
+### 统一入口增补（2026-09-26，m28 落点）
+
+```text
+    ├── assembly/                        # m28 知识装配层（ADR-0002 统一入口；只读公开面产候选）
+    │   ├── assembler.py                 # assemble(message, role) -> AssembledPrompt：D2 输入装配+候选清单
+    │   └── anchor.py                    # Anchor.resolve(message) -> AnchorSet：实体锚定（复用 m21.Anchor 公开面）
+```
+
 
 ## 设计增补记录
 

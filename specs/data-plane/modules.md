@@ -74,6 +74,8 @@ minio-iceberg.md（PyIceberg API 形状/REST catalog/元数据树）、duckdb.md
 #### 参考锚点
 flink.md（CDC pipeline sink / 原生 sink / SQL Gateway 定位）、streaming-batch-warehouse.md（Lambda 双链路/流批一体三路线）、设定书 §2.1（五层链路/15 分钟闭环）。
 
+> 对齐注记，2026-09-27；Owner 拍板"数据接入已安排数据面任务在实际开发"）：上游数据源形态在生产部署下可为**数据中台**（托管视图/API）替代直连生产库——此时进料链路不变（dp2 只认源清单与新鲜度登记），**映射卡＝平台与数据中台两边共同维护的约定**：语义面 mapping_cards（本体边→台账表固定落点，见本体数据全链路文档 §⑤）的对端就是 dp2 登记的源清单；数据中台侧改表/改接口时两边同改映射卡并版本化，平台侧不感知中台内部实现（与"数据面与平台语义侧只走公开面"边界规则同构）。A2 关系链下钻 demo 直查台账表；生产形态＝同一映射卡路由到数据中台源，对页面与 Agent 透明。
+
 ### dp3 加工与质量 Transform
 
 职责: 把明细加工成可信中间层（staging→intermediate→marts），执行质量规则，产出 manifest 机器可读口径与血缘。
@@ -85,6 +87,8 @@ flink.md（CDC pipeline sink / 原生 sink / SQL Gateway 定位）、streaming-b
 - `rule_mapping() -> dict[rule_id, test_name]`（§4 规则 ID ↔ dbt test 名对照——质量闸主锚点）
 - `build_marts() -> BuildResult(models_built, tests_passed, manifest_ref)`（S2：dbt build 形状）
 - `lineage(model: str) -> LineageInfo(upstreams, downstreams, columns)`（读 manifest.json 的 parent_map/child_map）
+
+> **（数据质量闭环，2026-09-28）**：QualityReport 下游补管理闭环——**隔离区**（坏行 payload+rule_id+batch_id 落 append-only 隔离表；schema 级故障整批拒收）、**问题单五态**（自动建单+按 规则×对象×数据日期 挂同单；复核=对修正批次自动重跑 validate_batch，全绿方可关闭，单记整改批次 ID）、**命中动作三档**（隔离/整批拒收/告警，锚定规则原文）、**安全类自动修**（归一/枚举/去重只作用派生层，留"原始值→修正值"痕迹；金额口径绝不）。接口契约=specs/api/E2-数据质量台.md v0.2；实现归 数据面服务仓 dp3 配套（实现票设计范围=tickets/105 附录 A）。调研依据=docs/research/2026-09-28。
 
 #### 依赖
 - 模块: `dp1`
